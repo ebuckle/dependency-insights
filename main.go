@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+
+	"github.com/ebuckle/dependency-insights/insights"
 )
 
 func main() {
@@ -19,13 +21,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	print, err := json.MarshalIndent(response, "", "		")
+	print, err := json.MarshalIndent(response, "", "\t")
 
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 
-	println(print)
+	println(string(print))
 	os.Exit(0)
 }

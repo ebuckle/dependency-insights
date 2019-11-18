@@ -45,7 +45,7 @@ func ProduceInsights(language string, projectPath string) (*map[string]interface
 
 // nodeWalk recursively walks through installed node packages to map dependencies
 func nodeWalk(projectPath string, insightData map[string]interface{}) error {
-	if _, err := os.Stat(projectPath + "/node_modules"); err != nil {
+	if _, err := os.Stat(projectPath + "/node_modules"); err == nil {
 		files, err := ioutil.ReadDir(projectPath + "/node_modules")
 		if err != nil {
 			return err
@@ -54,7 +54,7 @@ func nodeWalk(projectPath string, insightData map[string]interface{}) error {
 		for _, file := range files {
 			if file.IsDir() {
 				path := projectPath + "/node_modules/" + file.Name()
-				if _, err := os.Stat(path + "/package.json"); err != nil {
+				if _, err := os.Stat(path + "/package.json"); err == nil {
 					jsonFile, err := os.Open(path + "/package.json")
 
 					if err != nil {
@@ -83,7 +83,7 @@ func nodeWalk(projectPath string, insightData map[string]interface{}) error {
 						insightData[packageID] = newPackageData
 					}
 
-					if _, err := os.Stat(path + "/node_modules"); err != nil {
+					if _, err := os.Stat(path + "/node_modules"); err == nil {
 						err := nodeWalk(path, insightData)
 
 						if err != nil {
@@ -100,7 +100,7 @@ func nodeWalk(projectPath string, insightData map[string]interface{}) error {
 // goWalk walks through installed go packaged to map dependencies
 func goWalk(projectPath string, insightData map[string]interface{}) error {
 	// Ensure go packages are installed
-	if _, err := os.Stat(projectPath + "/vendor"); err != nil {
+	if _, err := os.Stat(projectPath + "/vendor"); err == nil {
 		sources, err := ioutil.ReadDir(projectPath + "/vendor")
 		if err != nil {
 			return err
