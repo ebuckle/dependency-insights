@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
+	"os/exec"
 
 	"gopkg.in/src-d/go-license-detector.v3/licensedb"
 	"gopkg.in/src-d/go-license-detector.v3/licensedb/filer"
@@ -23,16 +24,6 @@ func ProduceInsights(language string, projectPath string) (*map[string]interface
 	// Choose correct walk function depending on the language of the project
 	switch language {
 	case "nodejs":
-		/*
-			command := exec.Command("npm", "ls", "--json", "--production", "--long")
-			command.Dir = projectPath
-			npmOutput, err := command.Output()
-			_ = ioutil.WriteFile("raw.json", npmOutput, 0644)
-			err = json.Unmarshal(npmOutput, &insightData)
-			if err != nil {
-				return nil, err
-			}
-		*/
 		err = nodeWalk(projectPath, insightData)
 	case "go":
 		err = goWalk(projectPath, insightData)
@@ -47,8 +38,8 @@ func ProduceInsights(language string, projectPath string) (*map[string]interface
 
 	performLicenseCheck(insightData)
 
-	if err != nil {
-		return nil, nil
+	if language == "nodejs" {
+		checkVulnerabilities(projectPath, insightData)
 	}
 	return &insightData, nil
 }
@@ -209,6 +200,48 @@ func performLicenseCheck(insightData map[string]interface{}) {
 
 		if dep["dependencies"] != nil {
 			performLicenseCheck(dep["dependencies"].(map[string]interface{}))
+		}
+	}
+}
+
+func checkVulnerabilities(projectPath string, insightData map[string]interface{}) error {
+	npmAudit := new(map[string]interface{})
+	command := exec.Command("npm", "audit", "--json", "--production")
+	command.Dir = projectPath
+	npmOutput, err := command.Output()
+	err = json.Unmarshal(npmOutput, &npmAudit)
+	if err != nil {
+		return err
+	}
+	insightData["npmAudit"] = npmAudit
+
+	for _, advisoryI := range (*npmAudit)["advisories"].(map[string]interface{}) {
+		advisory := advisoryI.(map[string]interface{})
+		moduleName := advisory["module_name"].(string)
+
+		findings := advisory["findings"].([]interface{})
+
+		for _, findingI := range findings {
+			finding := findingI.(map[string]interface{})
+			moduleVersion := finding["version"].(string)
+			moduleID := moduleName + "@" + moduleVersion
+
+			mapVulnerabilities(insightData, advisory, moduleID)
+		}
+	}
+
+	return nil
+}
+
+func mapVulnerabilities(insightData map[string]interface{}, advisory map[string]interface{}, moduleID string) {
+	for key, depI := range insightData {
+		dep := depI.(map[string]interface{})
+		if key == moduleID {
+			dep["npmAudit"] = advisory
+		} else if dep["dependencies"] != nil {
+			mapVulnerabilities(dep["dependencies"].(map[string]interface{}), advisory, moduleID)
+		} else {
+			continue
 		}
 	}
 }
