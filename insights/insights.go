@@ -23,6 +23,16 @@ func ProduceInsights(language string, projectPath string) (*map[string]interface
 	// Choose correct walk function depending on the language of the project
 	switch language {
 	case "nodejs":
+		/*
+			command := exec.Command("npm", "ls", "--json", "--production", "--long")
+			command.Dir = projectPath
+			npmOutput, err := command.Output()
+			_ = ioutil.WriteFile("raw.json", npmOutput, 0644)
+			err = json.Unmarshal(npmOutput, &insightData)
+			if err != nil {
+				return nil, err
+			}
+		*/
 		err = nodeWalk(projectPath, insightData)
 	case "go":
 		err = goWalk(projectPath, insightData)
@@ -84,7 +94,9 @@ func nodeWalk(projectPath string, insightData map[string]interface{}) error {
 					}
 
 					if _, err := os.Stat(path + "/node_modules"); err == nil {
-						err := nodeWalk(path, insightData)
+						dependenciesData := make(map[string]interface{})
+						err := nodeWalk(path, dependenciesData)
+						insightData[packageID].(map[string]interface{})["dependencies"] = dependenciesData
 
 						if err != nil {
 							return err
@@ -193,6 +205,10 @@ func performLicenseCheck(insightData map[string]interface{}) {
 			dep["license-analysis"] = err.Error()
 		} else {
 			dep["license-analysis"] = results
+		}
+
+		if dep["dependencies"] != nil {
+			performLicenseCheck(dep["dependencies"].(map[string]interface{}))
 		}
 	}
 }
