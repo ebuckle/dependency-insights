@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/ebuckle/dependency-insights/insights"
@@ -24,6 +25,49 @@ func InsightsLocalProject(c *cli.Context) {
 		os.Exit(1)
 	}
 
+	printResults(*response)
+}
+
+// InsightsDockerProject produces insights on the contents of a docker container
+func InsightsDockerProject(c *cli.Context) {
+	containerID := strings.TrimSpace(strings.ToLower(c.String("conid")))
+	projectLanguage := strings.TrimSpace(strings.ToLower(c.String("language")))
+
+	os.Mkdir("temp", 0700)
+
+	dockerCommand := exec.Command("docker", "container", "export", containerID, "-o", "output.tar")
+	dockerCommand.Dir = "temp"
+	err := dockerCommand.Run()
+
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	tarCommand := exec.Command("tar", "-xvf", "output.tar")
+	tarCommand.Dir = "temp"
+	tarCommand.Run()
+
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	projectPath := "./temp/app"
+
+	response, err := insights.ProduceInsights(projectLanguage, projectPath)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	os.RemoveAll("temp")
+
+	printResults(*response)
+}
+
+func printResults(response map[string]interface{}) {
 	print, err := json.MarshalIndent(response, "", "\t")
 
 	if err != nil {

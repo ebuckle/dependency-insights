@@ -12,5 +12,6 @@
 *.out
 
 /vendor
+/temp
 output.json
 dependency-insights

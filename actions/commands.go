@@ -35,6 +35,10 @@ func Commands() {
 				cli.StringFlag{Name: "conid", Usage: "The container id of the project", Required: true},
 				cli.StringFlag{Name: "language, l", Usage: "The project language", Required: true},
 			},
+			Action: func(c *cli.Context) error {
+				InsightsDockerProject(c)
+				return nil
+			},
 		},
 	}
 
