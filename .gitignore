@@ -12,6 +12,6 @@
 *.out
 
 /vendor
-/temp
+/temp-folder-delete-me
 output.json
 dependency-insights

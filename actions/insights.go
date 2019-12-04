@@ -32,11 +32,12 @@ func InsightsLocalProject(c *cli.Context) {
 func InsightsDockerProject(c *cli.Context) {
 	containerID := strings.TrimSpace(strings.ToLower(c.String("conid")))
 	projectLanguage := strings.TrimSpace(strings.ToLower(c.String("language")))
+	tempFolder := "temp-folder-delete-me"
 
-	os.Mkdir("temp", 0700)
+	os.Mkdir(tempFolder, 0700)
 
 	dockerCommand := exec.Command("docker", "container", "export", containerID, "-o", "output.tar")
-	dockerCommand.Dir = "temp"
+	dockerCommand.Dir = tempFolder
 	err := dockerCommand.Run()
 
 	if err != nil {
@@ -45,7 +46,7 @@ func InsightsDockerProject(c *cli.Context) {
 	}
 
 	tarCommand := exec.Command("tar", "-xvf", "output.tar")
-	tarCommand.Dir = "temp"
+	tarCommand.Dir = tempFolder
 	tarCommand.Run()
 
 	if err != nil {
@@ -53,7 +54,7 @@ func InsightsDockerProject(c *cli.Context) {
 		os.Exit(1)
 	}
 
-	projectPath := "./temp/app"
+	projectPath := tempFolder + "/app"
 
 	response, err := insights.ProduceInsights(projectLanguage, projectPath)
 
@@ -62,7 +63,7 @@ func InsightsDockerProject(c *cli.Context) {
 		os.Exit(1)
 	}
 
-	os.RemoveAll("temp")
+	os.RemoveAll(tempFolder)
 
 	printResults(*response)
 }
