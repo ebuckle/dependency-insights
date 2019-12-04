@@ -43,5 +43,5 @@ func Commands() {
 	}
 
 	err := app.Run(os.Args)
-	println(err)
+	println(err.Error())
 }
