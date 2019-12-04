@@ -213,7 +213,7 @@ func checkVulnerabilities(projectPath string, insightData map[string]interface{}
 	if err != nil {
 		return err
 	}
-	insightData["npmAudit"] = npmAudit
+	insightData["npmAudit"] = *npmAudit
 
 	for _, advisoryI := range (*npmAudit)["advisories"].(map[string]interface{}) {
 		advisory := advisoryI.(map[string]interface{})
