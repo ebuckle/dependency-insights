@@ -40,6 +40,19 @@ func Commands() {
 				return nil
 			},
 		},
+		{
+			Name:  "git",
+			Usage: "analyse a git project",
+
+			Flags: []cli.Flag{
+				cli.StringFlag{Name: "url", Usage: "The git url of the project", Required: true},
+				cli.StringFlag{Name: "language, l", Usage: "The project language", Required: true},
+			},
+			Action: func(c *cli.Context) error {
+				InsightsGitProject(c)
+				return nil
+			},
+		},
 	}
 
 	err := app.Run(os.Args)
