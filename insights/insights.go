@@ -24,6 +24,14 @@ func ProduceInsights(language string, projectPath string) (*map[string]interface
 	// Choose correct walk function depending on the language of the project
 	switch language {
 	case "nodejs":
+		nodeCommand := exec.Command("npm", "ls", "--json")
+		nodeCommand.Dir = projectPath
+		rawOutput, _ := nodeCommand.Output()
+		err = json.Unmarshal(rawOutput, &insightData)
+		insightData = insightData["dependencies"].(map[string]interface{})
+		if err != nil {
+			return nil, err
+		}
 		err = nodeWalk(projectPath, insightData)
 	case "go":
 		err = goWalk(projectPath, insightData)
@@ -44,7 +52,7 @@ func ProduceInsights(language string, projectPath string) (*map[string]interface
 	return &insightData, nil
 }
 
-// nodeWalk recursively walks through installed node packages to map dependencies
+/*
 func nodeWalk(projectPath string, insightData map[string]interface{}) error {
 	if _, err := os.Stat(projectPath + "/node_modules"); err == nil {
 		files, err := ioutil.ReadDir(projectPath + "/node_modules")
@@ -89,6 +97,58 @@ func nodeWalk(projectPath string, insightData map[string]interface{}) error {
 						err := nodeWalk(path, dependenciesData)
 						insightData[packageID].(map[string]interface{})["dependencies"] = dependenciesData
 
+						if err != nil {
+							return err
+						}
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
+*/
+
+func nodeWalk(projectPath string, insightData map[string]interface{}) error {
+	if _, err := os.Stat(projectPath + "/node_modules"); err == nil {
+		files, err := ioutil.ReadDir(projectPath + "/node_modules")
+		if err != nil {
+			return err
+		}
+
+		for _, file := range files {
+			if file.IsDir() {
+				path := projectPath + "/node_modules/" + file.Name()
+				if _, err := os.Stat(path + "/package.json"); err == nil {
+					jsonFile, err := os.Open(path + "/package.json")
+
+					if err != nil {
+						return err
+					}
+
+					byteValue, err := ioutil.ReadAll(jsonFile)
+
+					if err != nil {
+						return err
+					}
+
+					jsonFile.Close()
+
+					var result map[string]interface{}
+					err = json.Unmarshal([]byte(byteValue), &result)
+
+					if err != nil {
+						return err
+					}
+
+					newPackageData := make(map[string]interface{})
+					transferNodeData(result, newPackageData, path)
+					packageID := newPackageData["name"].(string) + "@" + newPackageData["version"].(string)
+
+					mapData(insightData, newPackageData, packageID)
+
+					if _, err := os.Stat(path + "/node_modules"); err == nil {
+						err := nodeWalk(path, insightData)
 						if err != nil {
 							return err
 						}
@@ -182,24 +242,28 @@ func transferNodeData(packageJSON map[string]interface{}, packageData map[string
 // performLicenseCheck takes an existing map of package data and performs a license check on each package
 func performLicenseCheck(insightData map[string]interface{}) {
 	for _, depI := range insightData {
-		dep := depI.(map[string]interface{})
-		filer, err := filer.FromDirectory(dep["path"].(string))
+		if dep, ok := depI.(map[string]interface{}); ok {
+			if dep["path"] == nil {
+				continue
+			}
+			filer, err := filer.FromDirectory(dep["path"].(string))
 
-		if err != nil {
-			dep["license-analysis"] = err.Error()
-			continue
-		}
+			if err != nil {
+				dep["license-analysis"] = err.Error()
+				continue
+			}
 
-		results, err := licensedb.Detect(filer)
+			results, err := licensedb.Detect(filer)
 
-		if err != nil {
-			dep["license-analysis"] = err.Error()
-		} else {
-			dep["license-analysis"] = results
-		}
+			if err != nil {
+				dep["license-analysis"] = err.Error()
+			} else {
+				dep["license-analysis"] = results
+			}
 
-		if dep["dependencies"] != nil {
-			performLicenseCheck(dep["dependencies"].(map[string]interface{}))
+			if dep["dependencies"] != nil {
+				performLicenseCheck(dep["dependencies"].(map[string]interface{}))
+			}
 		}
 	}
 }
@@ -235,13 +299,27 @@ func checkVulnerabilities(projectPath string, insightData map[string]interface{}
 
 func mapVulnerabilities(insightData map[string]interface{}, advisory map[string]interface{}, moduleID string) {
 	for key, depI := range insightData {
-		dep := depI.(map[string]interface{})
-		if key == moduleID {
-			dep["npmAudit"] = advisory
-		} else if dep["dependencies"] != nil {
-			mapVulnerabilities(dep["dependencies"].(map[string]interface{}), advisory, moduleID)
-		} else {
-			continue
+		if dep, ok := depI.(map[string]interface{}); ok {
+			if dep["version"] != nil && key+"@"+dep["version"].(string) == moduleID {
+				dep["npmAudit"] = advisory
+			}
+			if dep["dependencies"] != nil {
+				mapVulnerabilities(dep["dependencies"].(map[string]interface{}), advisory, moduleID)
+			}
+		}
+	}
+}
+
+func mapData(insightData map[string]interface{}, moduleData map[string]interface{}, moduleID string) {
+	for key, depI := range insightData {
+		if dep, ok := depI.(map[string]interface{}); ok {
+			if dep["version"] != nil && key+"@"+dep["version"].(string) == moduleID {
+				dep["path"] = moduleData["path"]
+				dep["declaredLicenses"] = moduleData["declaredLicenses"]
+			}
+			if dep["dependencies"] != nil {
+				mapData(dep["dependencies"].(map[string]interface{}), moduleData, moduleID)
+			}
 		}
 	}
 }

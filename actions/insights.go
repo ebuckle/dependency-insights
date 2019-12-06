@@ -136,10 +136,12 @@ func installDependencies(projectPath string, projectLanguage string) error {
 		npmCommand := exec.Command("npm", "install")
 		npmCommand.Dir = projectPath
 		err = npmCommand.Run()
-	case "go":
-		goCommand := exec.Command("dep", "ensure", "-v")
-		goCommand.Dir = projectPath
-		err = goCommand.Run()
+	/*
+		case "go":
+			goCommand := exec.Command("dep", "ensure", "-v")
+			goCommand.Dir = projectPath
+			err = goCommand.Run()
+	*/
 	default:
 		err = errors.New("language not currently supported")
 	}
