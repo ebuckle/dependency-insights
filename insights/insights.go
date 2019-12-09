@@ -28,11 +28,10 @@ func ProduceInsights(language string, projectPath string) (*map[string]interface
 		nodeCommand.Dir = projectPath
 		rawOutput, _ := nodeCommand.Output()
 		err = json.Unmarshal(rawOutput, &insightData)
-		insightData = insightData["dependencies"].(map[string]interface{})
 		if err != nil {
 			return nil, err
 		}
-		err = nodeWalk(projectPath, insightData)
+		err = nodeWalk(projectPath, insightData["dependencies"].(map[string]interface{}))
 	case "go":
 		err = goWalk(projectPath, insightData)
 	default:
@@ -44,7 +43,7 @@ func ProduceInsights(language string, projectPath string) (*map[string]interface
 		return nil, err
 	}
 
-	performLicenseCheck(insightData)
+	performLicenseCheck(insightData["dependencies"].(map[string]interface{}))
 
 	if language == "nodejs" {
 		checkVulnerabilities(projectPath, insightData)
@@ -290,7 +289,7 @@ func checkVulnerabilities(projectPath string, insightData map[string]interface{}
 			moduleVersion := finding["version"].(string)
 			moduleID := moduleName + "@" + moduleVersion
 
-			mapVulnerabilities(insightData, advisory, moduleID)
+			mapVulnerabilities(insightData["dependencies"].(map[string]interface{}), advisory, moduleID)
 		}
 	}
 
