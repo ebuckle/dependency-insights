@@ -23,7 +23,7 @@ func Commands() {
 				cli.StringFlag{Name: "language, l", Usage: "The project language", Required: true},
 			},
 			Action: func(c *cli.Context) error {
-				InsightsLocalProject(c)
+				StartInsights(c)
 				return nil
 			},
 		},
@@ -36,7 +36,7 @@ func Commands() {
 				cli.StringFlag{Name: "language, l", Usage: "The project language", Required: true},
 			},
 			Action: func(c *cli.Context) error {
-				InsightsDockerProject(c)
+				StartInsights(c)
 				return nil
 			},
 		},
@@ -49,12 +49,14 @@ func Commands() {
 				cli.StringFlag{Name: "language, l", Usage: "The project language", Required: true},
 			},
 			Action: func(c *cli.Context) error {
-				InsightsGitProject(c)
+				StartInsights(c)
 				return nil
 			},
 		},
 	}
 
 	err := app.Run(os.Args)
-	println(err.Error())
+	if err != nil {
+		println(err.Error())
+	}
 }

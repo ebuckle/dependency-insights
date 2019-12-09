@@ -2,30 +2,6 @@
 
 
 [[projects]]
-  branch = "master"
-  digest = "1:66595e0ca5511f56ff4c4f532ea24d2760072805b795e3134cdde7fe0bead3f6"
-  name = "github.com/alcortesm/tgz"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "9c5fe88206d7765837fed3732a42ef88fc51f1a1"
-
-[[projects]]
-  branch = "master"
-  digest = "1:1a200e7e73293b75eb8e5c93d023b5472663432da0b663e1532624fcfede9ca8"
-  name = "github.com/anmitsu/go-shlex"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "648efa622239a2f6ff949fed78ee37b48d499ba4"
-
-[[projects]]
-  branch = "master"
-  digest = "1:5a91fc342af1f94bce8b760a80d5b709fe53ea10c870a5daf1dc7e9fada8525f"
-  name = "github.com/armon/go-socks5"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "e75332964ef517daa070d7c38a9466a0d687e0a5"
-
-[[projects]]
   digest = "1:7cb4fdca4c251b3ef8027c90ea35f70c7b661a593b9eeae34753c65499098bb1"
   name = "github.com/cpuguy83/go-md2man"
   packages = ["md2man"]
@@ -73,28 +49,6 @@
   version = "v1.12.0"
 
 [[projects]]
-  digest = "1:0a01355005024757ae2a1f62e8fe68a30b4f5fde7a08ac88b3685e7999ac354b"
-  name = "github.com/gliderlabs/ssh"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "5b6cc7030f17095c0cf23bb063b0bfe824fe5f8b"
-  version = "v0.2.2"
-
-[[projects]]
-  digest = "1:1d1cbf539d9ac35eb3148129f96be5537f1a1330cadcc7e3a83b4e72a59672a3"
-  name = "github.com/google/go-cmp"
-  packages = [
-    "cmp",
-    "cmp/internal/diff",
-    "cmp/internal/flags",
-    "cmp/internal/function",
-    "cmp/internal/value",
-  ]
-  pruneopts = "UT"
-  revision = "2d0692c2e9617365a95b295612ac0d4415ba4627"
-  version = "v0.3.1"
-
-[[projects]]
   branch = "master"
   digest = "1:3b2b75e75a64ac359e661a1431d1a8f2ec3ba9ef730a34802218da89b241d0fb"
   name = "github.com/hhatto/gorst"
@@ -125,36 +79,12 @@
   version = "v1.1.1"
 
 [[projects]]
-  digest = "1:a2cff208d4759f6ba1b1cd228587b0a1869f95f22542ec9cd17fff64430113c7"
-  name = "github.com/jessevdk/go-flags"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "c6ca198ec95c841fdb89fc0de7496fed11ab854e"
-  version = "v1.4.0"
-
-[[projects]]
   digest = "1:fd7f169f32c221b096c74e756bda16fe22d3bb448bbf74042fd0700407a1f92f"
   name = "github.com/kevinburke/ssh_config"
   packages = ["."]
   pruneopts = "UT"
   revision = "6cfae18c12b8934b1afba3ce8159476fdef666ba"
   version = "1.0"
-
-[[projects]]
-  digest = "1:ca955a9cd5b50b0f43d2cc3aeb35c951473eeca41b34eb67507f1dbcc0542394"
-  name = "github.com/kr/pretty"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "73f6ac0b30a98e433b289500d779f50c1a6f0712"
-  version = "v0.1.0"
-
-[[projects]]
-  digest = "1:15b5cc79aad436d47019f814fde81a10221c740dc8ddf769221a65097fb6c2e9"
-  name = "github.com/kr/text"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "e2ffdb16a802fe2bb95e2e35ff34f0e53aeef34f"
-  version = "v0.1.0"
 
 [[projects]]
   digest = "1:5d231480e1c64a726869bc4142d270184c419749d34f167646baa21008eb0a79"
@@ -267,7 +197,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:8af0f651aa663e38baeca9c15fd6c5408ec8b3c9be2352af8df861adca290002"
+  digest = "1:9032503e3b50f8c87197a2c9f697720bd7e0c62ff32b83e96d3ff301887da4b6"
   name = "golang.org/x/crypto"
   packages = [
     "cast5",
@@ -286,7 +216,6 @@
     "ssh",
     "ssh/agent",
     "ssh/knownhosts",
-    "ssh/testdata",
   ]
   pruneopts = "UT"
   revision = "497ca9f6d64f9bb73048a960b4098309edcd2205"
@@ -373,14 +302,6 @@
   version = "v0.6.0"
 
 [[projects]]
-  branch = "v1"
-  digest = "1:bc88591477b5fee4520dcd3d8fa8fd26f5d78b83193ed0102a7e83552652daa4"
-  name = "gopkg.in/check.v1"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "41f04d3bba152ddec2103e299fed053415705330"
-
-[[projects]]
   digest = "1:85b60f4403e2aae0eee2ac2ba50e4124dea766b582c6ec0d94fb1335d9c0d16e"
   name = "gopkg.in/neurosnap/sentences.v1"
   packages = [
@@ -424,15 +345,7 @@
   version = "v4.3.2"
 
 [[projects]]
-  digest = "1:30e078f2fc7f45a8bb1c48c0204fd630bf403929ca028a5b841645999a858370"
-  name = "gopkg.in/src-d/go-git-fixtures.v3"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "1217ba29e6f439a07bffd6fe92bf306766dd4160"
-  version = "v3.5.0"
-
-[[projects]]
-  digest = "1:5d71c72d08d8075c845ef0dd9b2e4f7b438ea00833bf4f04d32b7929193bb1a1"
+  digest = "1:b2ad0a18676cd4d5b4b180709c1ea34dbabd74b3d7db0cc01e6d287d5f1e3a99"
   name = "gopkg.in/src-d/go-git.v4"
   packages = [
     ".",
@@ -442,7 +355,6 @@
     "plumbing",
     "plumbing/cache",
     "plumbing/filemode",
-    "plumbing/format/commitgraph",
     "plumbing/format/config",
     "plumbing/format/diff",
     "plumbing/format/gitignore",
@@ -465,12 +377,10 @@
     "plumbing/transport/internal/common",
     "plumbing/transport/server",
     "plumbing/transport/ssh",
-    "plumbing/transport/test",
     "storage",
     "storage/filesystem",
     "storage/filesystem/dotgit",
     "storage/memory",
-    "storage/test",
     "utils/binary",
     "utils/diff",
     "utils/ioutil",
@@ -478,7 +388,6 @@
     "utils/merkletrie/filesystem",
     "utils/merkletrie/index",
     "utils/merkletrie/internal/frame",
-    "utils/merkletrie/internal/fsnoder",
     "utils/merkletrie/noder",
   ]
   pruneopts = "UT"
@@ -531,73 +440,10 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/armon/go-socks5",
-    "github.com/emirpasic/gods/trees/binaryheap",
-    "github.com/gliderlabs/ssh",
-    "github.com/google/go-cmp/cmp",
-    "github.com/jbenet/go-context/io",
-    "github.com/jessevdk/go-flags",
-    "github.com/kevinburke/ssh_config",
-    "github.com/mitchellh/go-homedir",
     "github.com/pkg/browser",
-    "github.com/sergi/go-diff/diffmatchpatch",
-    "github.com/src-d/gcfg",
     "github.com/stretchr/testify/assert",
     "github.com/urfave/cli",
-    "github.com/xanzy/ssh-agent",
-    "golang.org/x/crypto/openpgp",
-    "golang.org/x/crypto/ssh",
-    "golang.org/x/crypto/ssh/knownhosts",
-    "golang.org/x/crypto/ssh/testdata",
-    "golang.org/x/net/proxy",
-    "golang.org/x/text/unicode/norm",
-    "gopkg.in/check.v1",
-    "gopkg.in/src-d/go-billy.v4",
-    "gopkg.in/src-d/go-billy.v4/memfs",
-    "gopkg.in/src-d/go-billy.v4/osfs",
-    "gopkg.in/src-d/go-billy.v4/util",
-    "gopkg.in/src-d/go-git-fixtures.v3",
     "gopkg.in/src-d/go-git.v4",
-    "gopkg.in/src-d/go-git.v4/config",
-    "gopkg.in/src-d/go-git.v4/internal/url",
-    "gopkg.in/src-d/go-git.v4/plumbing",
-    "gopkg.in/src-d/go-git.v4/plumbing/cache",
-    "gopkg.in/src-d/go-git.v4/plumbing/filemode",
-    "gopkg.in/src-d/go-git.v4/plumbing/format/commitgraph",
-    "gopkg.in/src-d/go-git.v4/plumbing/format/config",
-    "gopkg.in/src-d/go-git.v4/plumbing/format/diff",
-    "gopkg.in/src-d/go-git.v4/plumbing/format/idxfile",
-    "gopkg.in/src-d/go-git.v4/plumbing/format/index",
-    "gopkg.in/src-d/go-git.v4/plumbing/format/objfile",
-    "gopkg.in/src-d/go-git.v4/plumbing/format/packfile",
-    "gopkg.in/src-d/go-git.v4/plumbing/format/pktline",
-    "gopkg.in/src-d/go-git.v4/plumbing/object",
-    "gopkg.in/src-d/go-git.v4/plumbing/protocol/packp",
-    "gopkg.in/src-d/go-git.v4/plumbing/protocol/packp/capability",
-    "gopkg.in/src-d/go-git.v4/plumbing/protocol/packp/sideband",
-    "gopkg.in/src-d/go-git.v4/plumbing/revlist",
-    "gopkg.in/src-d/go-git.v4/plumbing/storer",
-    "gopkg.in/src-d/go-git.v4/plumbing/transport",
-    "gopkg.in/src-d/go-git.v4/plumbing/transport/client",
-    "gopkg.in/src-d/go-git.v4/plumbing/transport/file",
-    "gopkg.in/src-d/go-git.v4/plumbing/transport/git",
-    "gopkg.in/src-d/go-git.v4/plumbing/transport/http",
-    "gopkg.in/src-d/go-git.v4/plumbing/transport/internal/common",
-    "gopkg.in/src-d/go-git.v4/plumbing/transport/server",
-    "gopkg.in/src-d/go-git.v4/plumbing/transport/ssh",
-    "gopkg.in/src-d/go-git.v4/plumbing/transport/test",
-    "gopkg.in/src-d/go-git.v4/storage",
-    "gopkg.in/src-d/go-git.v4/storage/filesystem",
-    "gopkg.in/src-d/go-git.v4/storage/filesystem/dotgit",
-    "gopkg.in/src-d/go-git.v4/storage/memory",
-    "gopkg.in/src-d/go-git.v4/storage/test",
-    "gopkg.in/src-d/go-git.v4/utils/binary",
-    "gopkg.in/src-d/go-git.v4/utils/diff",
-    "gopkg.in/src-d/go-git.v4/utils/ioutil",
-    "gopkg.in/src-d/go-git.v4/utils/merkletrie",
-    "gopkg.in/src-d/go-git.v4/utils/merkletrie/internal/frame",
-    "gopkg.in/src-d/go-git.v4/utils/merkletrie/internal/fsnoder",
-    "gopkg.in/src-d/go-git.v4/utils/merkletrie/noder",
     "gopkg.in/src-d/go-license-detector.v3/licensedb",
     "gopkg.in/src-d/go-license-detector.v3/licensedb/filer",
   ]

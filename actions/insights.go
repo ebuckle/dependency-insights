@@ -4,21 +4,28 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/ebuckle/dependency-insights/insights"
-	"github.com/pkg/browser"
 	"github.com/urfave/cli"
 	"gopkg.in/src-d/go-git.v4"
 )
 
-// InsightsLocalProject produces dependency insights for locally saved projects
-func InsightsLocalProject(c *cli.Context) {
-	projectPath := strings.TrimSpace(strings.ToLower(c.String("path")))
+// StartInsights calls the appropriate setup function for the project type, then starts the insights process
+func StartInsights(c *cli.Context) {
+	tempFolder := setupTemp()
+	var projectPath string
 	projectLanguage := strings.TrimSpace(strings.ToLower(c.String("language")))
+	switch c.Command.FullName() {
+	case "local":
+		projectPath = strings.TrimSpace(strings.ToLower(c.String("path")))
+	case "docker":
+		projectPath = setupDockerProject(c, tempFolder)
+	case "git":
+		projectPath = setupGitProject(c, tempFolder)
+	}
 
 	response, err := insights.ProduceInsights(projectLanguage, projectPath)
 
@@ -28,13 +35,12 @@ func InsightsLocalProject(c *cli.Context) {
 	}
 
 	printResults(*response)
+
+	teardownTemp(tempFolder)
 }
 
-// InsightsDockerProject produces insights on the contents of a docker container
-func InsightsDockerProject(c *cli.Context) {
+func setupDockerProject(c *cli.Context, tempFolder string) string {
 	containerID := strings.TrimSpace(strings.ToLower(c.String("conid")))
-	projectLanguage := strings.TrimSpace(strings.ToLower(c.String("language")))
-	tempFolder := setupTemp()
 
 	dockerCommand := exec.Command("docker", "container", "export", containerID, "-o", "output.tar")
 	dockerCommand.Dir = tempFolder
@@ -56,23 +62,12 @@ func InsightsDockerProject(c *cli.Context) {
 
 	projectPath := tempFolder + "/app"
 
-	response, err := insights.ProduceInsights(projectLanguage, projectPath)
-
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
-
-	teardownTemp(tempFolder)
-
-	printResults(*response)
+	return projectPath
 }
 
-// InsightsGitProject produces insights on the contents of the given git repository
-func InsightsGitProject(c *cli.Context) {
+func setupGitProject(c *cli.Context, tempFolder string) string {
 	gitURL := strings.TrimSpace(strings.ToLower(c.String("url")))
 	projectLanguage := strings.TrimSpace(strings.ToLower(c.String("language")))
-	tempFolder := setupTemp()
 
 	_, err := git.PlainClone(tempFolder, false, &git.CloneOptions{
 		URL:      gitURL,
@@ -93,29 +88,16 @@ func InsightsGitProject(c *cli.Context) {
 		os.Exit(1)
 	}
 
-	response, err := insights.ProduceInsights(projectLanguage, projectPath)
-
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
-
-	teardownTemp(tempFolder)
-
-	printResults(*response)
+	return projectPath
 }
 
 func printResults(response map[string]interface{}) {
-	print, err := json.MarshalIndent(response, "", "\t")
-
+	jsonOut, err := json.Marshal(response)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
-
-	_ = ioutil.WriteFile("output.json", print, 0644)
-	root, _ := os.Getwd()
-	browser.OpenURL("file:///" + root + "/output.json")
+	fmt.Print(string(jsonOut))
 	os.Exit(0)
 }
 
