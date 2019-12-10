@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/ebuckle/dependency-insights/insights"
+	"github.com/ebuckle/dependency-insights/report"
 	"github.com/urfave/cli"
 	"gopkg.in/src-d/go-git.v4"
 )
@@ -92,12 +94,22 @@ func setupGitProject(c *cli.Context, tempFolder string) string {
 }
 
 func printResults(response map[string]interface{}) {
-	jsonOut, err := json.Marshal(response)
+	file, err := json.MarshalIndent(response, "", "\t")
+
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
-	fmt.Print(string(jsonOut))
+
+	err = ioutil.WriteFile("output.json", file, 0644)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	report.ProduceReport(response)
+
 	os.Exit(0)
 }
 

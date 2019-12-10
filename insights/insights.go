@@ -51,63 +51,6 @@ func ProduceInsights(language string, projectPath string) (*map[string]interface
 	return &insightData, nil
 }
 
-/*
-func nodeWalk(projectPath string, insightData map[string]interface{}) error {
-	if _, err := os.Stat(projectPath + "/node_modules"); err == nil {
-		files, err := ioutil.ReadDir(projectPath + "/node_modules")
-		if err != nil {
-			return err
-		}
-
-		for _, file := range files {
-			if file.IsDir() {
-				path := projectPath + "/node_modules/" + file.Name()
-				if _, err := os.Stat(path + "/package.json"); err == nil {
-					jsonFile, err := os.Open(path + "/package.json")
-
-					if err != nil {
-						return err
-					}
-
-					byteValue, err := ioutil.ReadAll(jsonFile)
-
-					if err != nil {
-						return err
-					}
-
-					jsonFile.Close()
-
-					var result map[string]interface{}
-					err = json.Unmarshal([]byte(byteValue), &result)
-
-					if err != nil {
-						return err
-					}
-
-					newPackageData := make(map[string]interface{})
-					transferNodeData(result, newPackageData, path)
-					packageID := newPackageData["name"].(string) + "@" + newPackageData["version"].(string)
-					if _, ok := insightData[packageID]; !ok {
-						insightData[packageID] = newPackageData
-					}
-
-					if _, err := os.Stat(path + "/node_modules"); err == nil {
-						dependenciesData := make(map[string]interface{})
-						err := nodeWalk(path, dependenciesData)
-						insightData[packageID].(map[string]interface{})["dependencies"] = dependenciesData
-
-						if err != nil {
-							return err
-						}
-					}
-				}
-			}
-		}
-	}
-	return nil
-}
-*/
-
 func nodeWalk(projectPath string, insightData map[string]interface{}) error {
 	if _, err := os.Stat(projectPath + "/node_modules"); err == nil {
 		files, err := ioutil.ReadDir(projectPath + "/node_modules")
