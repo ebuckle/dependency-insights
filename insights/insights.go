@@ -191,14 +191,14 @@ func performLicenseCheck(insightData map[string]interface{}) {
 			filer, err := filer.FromDirectory(dep["path"].(string))
 
 			if err != nil {
-				dep["license-analysis"] = err.Error()
+				dep["license-analysis"] = nil
 				continue
 			}
 
 			results, err := licensedb.Detect(filer)
 
 			if err != nil {
-				dep["license-analysis"] = err.Error()
+				dep["license-analysis"] = nil
 			} else {
 				dep["license-analysis"] = results
 			}

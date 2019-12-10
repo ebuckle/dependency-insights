@@ -1,10 +1,8 @@
 package actions
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -94,23 +92,7 @@ func setupGitProject(c *cli.Context, tempFolder string) string {
 }
 
 func printResults(response map[string]interface{}) {
-	file, err := json.MarshalIndent(response, "", "\t")
-
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
-
-	err = ioutil.WriteFile("output.json", file, 0644)
-
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
-
 	report.ProduceReport(response)
-
-	os.Exit(0)
 }
 
 func setupTemp() string {

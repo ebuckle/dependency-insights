@@ -445,6 +445,7 @@
     "github.com/urfave/cli",
     "gopkg.in/src-d/go-git.v4",
     "gopkg.in/src-d/go-license-detector.v3/licensedb",
+    "gopkg.in/src-d/go-license-detector.v3/licensedb/api",
     "gopkg.in/src-d/go-license-detector.v3/licensedb/filer",
   ]
   solver-name = "gps-cdcl"
