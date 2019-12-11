@@ -49,6 +49,14 @@
   version = "v1.12.0"
 
 [[projects]]
+  digest = "1:eceec69de4581189a65244bf958b2c4b3a121ed80700f92ae25c03ab2c8f61a2"
+  name = "github.com/getlantern/deepcopy"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "b923171e8640f94369e21e324b1b0465cb82ec9f"
+  version = "v1"
+
+[[projects]]
   branch = "master"
   digest = "1:3b2b75e75a64ac359e661a1431d1a8f2ec3ba9ef730a34802218da89b241d0fb"
   name = "github.com/hhatto/gorst"
@@ -440,6 +448,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/davecgh/go-spew/spew",
+    "github.com/getlantern/deepcopy",
     "github.com/pkg/browser",
     "github.com/stretchr/testify/assert",
     "github.com/urfave/cli",

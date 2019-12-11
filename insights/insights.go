@@ -7,19 +7,60 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/src-d/go-license-detector.v3/licensedb"
+	"gopkg.in/src-d/go-license-detector.v3/licensedb/api"
 	"gopkg.in/src-d/go-license-detector.v3/licensedb/filer"
 )
 
+// DependencyData is the data structure representing a single dependency and its sub dependencies
+type DependencyData struct {
+	Version              string                     `json:"version"`
+	From                 string                     `json:"from"`
+	Resolved             string                     `json:"resolved"`
+	Depedencies          map[string]*DependencyData `json:"dependencies"`
+	Path                 string                     `json:"path"`
+	Audit                map[string]interface{}     `json:"audit"`
+	LicenseAnalysis      map[string]api.Match       `json:"licenseAnalysis"`
+	LicenseAnalysisError string                     `json:"licenseAnalysisError"`
+	DeclaredLicenses     string                     `json:"declaredLicenses"`
+	Vulnerabilities      *Vulnerabilities           `json:"Vulnerabilities"`
+	ChildVulnerabilities *Vulnerabilities           `json:"childVulnerabilities"`
+}
+
+// NpmReport contains information about the parent project, dependencies, npm audit and project issues
+type NpmReport struct {
+	Dependencies map[string]*DependencyData
+	Version      string
+	Name         string
+	Problems     []string
+	Audit        map[string]interface{}
+}
+
+type packageJSONData struct {
+	Name             string
+	Version          string
+	Description      string
+	DeclaredLicenses string
+	Path             string
+}
+
+// Vulnerabilities stores the number of vulnerabilities a package has
+type Vulnerabilities struct {
+	High   int `json:"high"`
+	Medium int `json:"medium"`
+	Low    int `json:"low"`
+}
+
 // ProduceInsights calls the appropriate crawling function for the provided language and then reports on licensing
-func ProduceInsights(language string, projectPath string) (*map[string]interface{}, error) {
+func ProduceInsights(language string, projectPath string) (*NpmReport, error) {
 	_, err := os.Stat(projectPath)
 
 	if err != nil {
 		return nil, err
 	}
 
-	insightData := make(map[string]interface{})
+	insightData := new(NpmReport)
 
 	// Choose correct walk function depending on the language of the project
 	switch language {
@@ -27,13 +68,13 @@ func ProduceInsights(language string, projectPath string) (*map[string]interface
 		nodeCommand := exec.Command("npm", "ls", "--json")
 		nodeCommand.Dir = projectPath
 		rawOutput, _ := nodeCommand.Output()
-		err = json.Unmarshal(rawOutput, &insightData)
+		err = json.Unmarshal(rawOutput, insightData)
 		if err != nil {
 			return nil, err
 		}
-		err = nodeWalk(projectPath, insightData["dependencies"].(map[string]interface{}))
-	case "go":
-		err = goWalk(projectPath, insightData)
+		err = nodeWalk(projectPath, &insightData.Dependencies)
+	// case "go":
+	// err = goWalk(projectPath, insightData)
 	default:
 		err := errors.New("language not recognised")
 		return nil, err
@@ -43,15 +84,19 @@ func ProduceInsights(language string, projectPath string) (*map[string]interface
 		return nil, err
 	}
 
-	performLicenseCheck(insightData["dependencies"].(map[string]interface{}))
+	performLicenseCheck(&insightData.Dependencies)
 
 	if language == "nodejs" {
-		checkVulnerabilities(projectPath, insightData)
+		err := checkVulnerabilities(projectPath, insightData)
+
+		if err != nil {
+			return nil, err
+		}
 	}
-	return &insightData, nil
+	return insightData, nil
 }
 
-func nodeWalk(projectPath string, insightData map[string]interface{}) error {
+func nodeWalk(projectPath string, dependencies *map[string]*DependencyData) error {
 	if _, err := os.Stat(projectPath + "/node_modules"); err == nil {
 		files, err := ioutil.ReadDir(projectPath + "/node_modules")
 		if err != nil {
@@ -83,14 +128,14 @@ func nodeWalk(projectPath string, insightData map[string]interface{}) error {
 						return err
 					}
 
-					newPackageData := make(map[string]interface{})
+					newPackageData := new(packageJSONData)
 					transferNodeData(result, newPackageData, path)
-					packageID := newPackageData["name"].(string) + "@" + newPackageData["version"].(string)
+					packageID := newPackageData.Name + "@" + newPackageData.Version
 
-					mapData(insightData, newPackageData, packageID)
+					mapData(dependencies, newPackageData, packageID)
 
 					if _, err := os.Stat(path + "/node_modules"); err == nil {
-						err := nodeWalk(path, insightData)
+						err := nodeWalk(path, dependencies)
 						if err != nil {
 							return err
 						}
@@ -163,55 +208,56 @@ func goWalk(projectPath string, insightData map[string]interface{}) error {
 }
 
 // transferNodeData takes existing package data from a package.json and loads it into a packageData struct
-func transferNodeData(packageJSON map[string]interface{}, packageData map[string]interface{}, path string) {
+func transferNodeData(packageJSON map[string]interface{}, packageData *packageJSONData, path string) {
 	if str, ok := packageJSON["name"].(string); ok {
-		packageData["name"] = str
+		packageData.Name = str
 	}
 	if str, ok := packageJSON["version"].(string); ok {
-		packageData["version"] = str
+		packageData.Version = str
 	}
 	if str, ok := packageJSON["description"].(string); ok {
-		packageData["description"] = str
+		packageData.Description = str
 	}
 	if str, ok := packageJSON["license"].(string); ok {
-		packageData["declaredLicenses"] = str
+		packageData.DeclaredLicenses = str
 	} else {
-		packageData["declaredLicenses"] = "No Declared License"
+		packageData.DeclaredLicenses = "No Declared License"
 	}
-	packageData["path"] = path
+	packageData.Path = path
 }
 
 // performLicenseCheck takes an existing map of package data and performs a license check on each package
-func performLicenseCheck(insightData map[string]interface{}) {
-	for _, depI := range insightData {
-		if dep, ok := depI.(map[string]interface{}); ok {
-			if dep["path"] == nil {
-				continue
-			}
-			filer, err := filer.FromDirectory(dep["path"].(string))
+func performLicenseCheck(dependencies *map[string]*DependencyData) {
+	for _, dep := range *dependencies {
+		if dep.Path == "" {
+			continue
+		}
 
-			if err != nil {
-				dep["license-analysis"] = nil
-				continue
-			}
+		filer, err := filer.FromDirectory(dep.Path)
 
-			results, err := licensedb.Detect(filer)
+		if err != nil {
+			dep.LicenseAnalysis = nil
+			dep.LicenseAnalysisError = err.Error()
+			continue
+		}
 
-			if err != nil {
-				dep["license-analysis"] = nil
-			} else {
-				dep["license-analysis"] = results
-			}
+		results, err := licensedb.Detect(filer)
 
-			if dep["dependencies"] != nil {
-				performLicenseCheck(dep["dependencies"].(map[string]interface{}))
-			}
+		if err != nil {
+			dep.LicenseAnalysisError = err.Error()
+		} else {
+			dep.LicenseAnalysis = results
+		}
+
+		if dep.Depedencies != nil {
+			performLicenseCheck(&dep.Depedencies)
 		}
 	}
 }
 
-func checkVulnerabilities(projectPath string, insightData map[string]interface{}) error {
-	npmAudit := new(map[string]interface{})
+func checkVulnerabilities(projectPath string, insightData *NpmReport) error {
+	// npmAudit := new(map[string]interface{})
+	var npmAudit map[string]interface{}
 	command := exec.Command("npm", "audit", "--json", "--production")
 	command.Dir = projectPath
 	npmOutput, err := command.Output()
@@ -219,9 +265,14 @@ func checkVulnerabilities(projectPath string, insightData map[string]interface{}
 	if err != nil {
 		return err
 	}
-	insightData["npmAudit"] = *npmAudit
+	insightData.Audit = npmAudit
 
-	for _, advisoryI := range (*npmAudit)["advisories"].(map[string]interface{}) {
+	if insightData.Audit["error"] != nil {
+		errorMessage := insightData.Audit["error"].(map[string]interface{})["detail"].(string)
+		return errors.New(errorMessage)
+	}
+
+	for id, advisoryI := range insightData.Audit["advisories"].(map[string]interface{}) {
 		advisory := advisoryI.(map[string]interface{})
 		moduleName := advisory["module_name"].(string)
 
@@ -232,36 +283,61 @@ func checkVulnerabilities(projectPath string, insightData map[string]interface{}
 			moduleVersion := finding["version"].(string)
 			moduleID := moduleName + "@" + moduleVersion
 
-			mapVulnerabilities(insightData["dependencies"].(map[string]interface{}), advisory, moduleID)
+			mapVulnerabilities(&insightData.Dependencies, id, advisory, moduleID)
 		}
 	}
 
 	return nil
 }
 
-func mapVulnerabilities(insightData map[string]interface{}, advisory map[string]interface{}, moduleID string) {
-	for key, depI := range insightData {
-		if dep, ok := depI.(map[string]interface{}); ok {
-			if dep["version"] != nil && key+"@"+dep["version"].(string) == moduleID {
-				dep["npmAudit"] = advisory
+func mapVulnerabilities(dependencies *map[string]*DependencyData, id string, advisory map[string]interface{}, moduleID string) *Vulnerabilities {
+	vulnTally := new(Vulnerabilities)
+	for key, dep := range *dependencies {
+		if dep.Version != "" && key+"@"+dep.Version == moduleID {
+			if dep.Audit == nil {
+				dep.Audit = map[string]interface{}{}
 			}
-			if dep["dependencies"] != nil {
-				mapVulnerabilities(dep["dependencies"].(map[string]interface{}), advisory, moduleID)
+			dep.Audit[id] = advisory
+			switch advisory["severity"].(string) {
+			case "high":
+				dep.Vulnerabilities.High++
+				vulnTally.High++
+			case "medium":
+				dep.Vulnerabilities.Medium++
+				vulnTally.Medium++
+			case "low":
+				dep.Vulnerabilities.Low++
+				vulnTally.Low++
 			}
+			spew.Dump(dep.Vulnerabilities)
+		}
+		if dep.Depedencies != nil {
+			childVulns := mapVulnerabilities(&dep.Depedencies, id, advisory, moduleID)
+			sumVulnerabilities(dep.ChildVulnerabilities, childVulns)
+			sumVulnerabilities(vulnTally, childVulns)
 		}
 	}
+	return vulnTally
 }
 
-func mapData(insightData map[string]interface{}, moduleData map[string]interface{}, moduleID string) {
-	for key, depI := range insightData {
-		if dep, ok := depI.(map[string]interface{}); ok {
-			if dep["version"] != nil && key+"@"+dep["version"].(string) == moduleID {
-				dep["path"] = moduleData["path"]
-				dep["declaredLicenses"] = moduleData["declaredLicenses"]
-			}
-			if dep["dependencies"] != nil {
-				mapData(dep["dependencies"].(map[string]interface{}), moduleData, moduleID)
-			}
+func sumVulnerabilities(parentTally *Vulnerabilities, childTally *Vulnerabilities) {
+	parentTally.High += childTally.High
+	parentTally.Medium += childTally.Medium
+	parentTally.Low += childTally.Low
+}
+
+func mapData(dependencies *map[string]*DependencyData, packageData *packageJSONData, moduleID string) {
+	for key, dep := range *dependencies {
+		if dep.Vulnerabilities == nil {
+			dep.Vulnerabilities = new(Vulnerabilities)
+			dep.ChildVulnerabilities = new(Vulnerabilities)
+		}
+		if dep.Version != "" && key+"@"+dep.Version == moduleID {
+			dep.Path = packageData.Path
+			dep.DeclaredLicenses = packageData.DeclaredLicenses
+		}
+		if dep.Depedencies != nil {
+			mapData(&dep.Depedencies, packageData, moduleID)
 		}
 	}
 }

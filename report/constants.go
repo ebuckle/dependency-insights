@@ -22,13 +22,39 @@ const (
 	</tr>
 	`
 
+	vulnTableOpen = `<table>
+	<tr>
+		<th>H</th>
+		<th>M</th>
+		<th>L</th>
+		<th></th>
+		<th>H</th>
+		<th>M</th>
+		<th>L</th>
+		<th>Info</th>
+	</tr>
+	`
+
+	vulnTableRow = `<tr>
+		<td>%d</td>
+		<td>%d</td>
+		<td>%d</td>
+		<td>%s</td>
+		<td>%d</td>
+		<td>%d</td>
+		<td>%d</td>
+		<td>%s</td>
+		`
+
 	tableRow = `<tr>
 		<td>%s</td>
 		<td>%s</td>
 		<td>%s</td>
 		<td>%s</td>
-	</tr>`
+	</tr>
+	`
 
 	tableClose = `
-	</table>`
+	</table>
+	`
 )

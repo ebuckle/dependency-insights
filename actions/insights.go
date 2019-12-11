@@ -1,8 +1,10 @@
 package actions
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -34,7 +36,11 @@ func StartInsights(c *cli.Context) {
 		os.Exit(1)
 	}
 
-	printResults(*response)
+	report.ProduceReport(response)
+
+	file, _ := json.MarshalIndent(response, "", "\t")
+
+	_ = ioutil.WriteFile("output.json", file, 0644)
 
 	teardownTemp(tempFolder)
 }
@@ -89,10 +95,6 @@ func setupGitProject(c *cli.Context, tempFolder string) string {
 	}
 
 	return projectPath
-}
-
-func printResults(response map[string]interface{}) {
-	report.ProduceReport(response)
 }
 
 func setupTemp() string {
