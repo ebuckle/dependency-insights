@@ -35,7 +35,11 @@ const (
 	  <th>Predicted License(s)</th>
 	</tr>
 	<tr row-id="0">
-		<td>%s</td>
+		<td>
+		<span class="tbltree-indent"></span>
+		<span class="tbltree-expander"></span>
+		%s
+		</td>
 		<td>%s</td>
 		<td></td>
 		<td></td>
@@ -68,7 +72,11 @@ const (
 		`
 
 	tableRow = `<tr row-id="%d" parent-id="%d">
-		<td>%s</td>
+		<td>
+		<span class="tbltree-indent"></span>
+		<span class="tbltree-expander"></span>
+		%s
+		</td>
 		<td class="data">%s</td>
 		<td class="data">%s</td>
 		<td class="data">%s</td>
