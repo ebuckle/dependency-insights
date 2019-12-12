@@ -25,11 +25,9 @@ func ProduceReport(insightData *insights.NpmReport) {
 }
 
 func buildReportData(report *insights.NpmReport, vulnerabilityReport *insights.NpmReport) {
-	// TODO: summary data for deps/sub deps
+	// TODO: summary data for licensing
 	deepcopy.Copy(vulnerabilityReport, report)
 	filterVulnerabilities(&vulnerabilityReport.Dependencies)
-	// licenseReport := report
-	//spew.Dump(vulnerabilityReport.Dependencies)
 }
 
 func printReport(w io.Writer, insightData *insights.NpmReport, vulnerabilityReport *insights.NpmReport) {

@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/src-d/go-license-detector.v3/licensedb"
 	"gopkg.in/src-d/go-license-detector.v3/licensedb/api"
 	"gopkg.in/src-d/go-license-detector.v3/licensedb/filer"
@@ -309,7 +308,6 @@ func mapVulnerabilities(dependencies *map[string]*DependencyData, id string, adv
 				dep.Vulnerabilities.Low++
 				vulnTally.Low++
 			}
-			spew.Dump(dep.Vulnerabilities)
 		}
 		if dep.Depedencies != nil {
 			childVulns := mapVulnerabilities(&dep.Depedencies, id, advisory, moduleID)

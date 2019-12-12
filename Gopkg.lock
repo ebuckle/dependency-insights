@@ -448,7 +448,6 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/davecgh/go-spew/spew",
     "github.com/getlantern/deepcopy",
     "github.com/pkg/browser",
     "github.com/stretchr/testify/assert",
