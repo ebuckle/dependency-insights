@@ -31,40 +31,32 @@ func buildReportData(report *insights.NpmReport, vulnerabilityReport *insights.N
 }
 
 func printReport(w io.Writer, insightData *insights.NpmReport, vulnerabilityReport *insights.NpmReport) {
-	fmt.Fprintf(w, htmlHeader, "")
+	fmt.Fprintf(w, htmlHeader)
 	fmt.Fprintf(w, vulnTableOpen)
 	printVulnerabilities(w, &vulnerabilityReport.Dependencies, "")
 	fmt.Fprintf(w, tableClose)
-	fmt.Fprintf(w, tableOpen)
-	printPackages(w, &insightData.Dependencies, "")
+	fmt.Fprintf(w, tableOpen, insightData.Name, insightData.Version)
+	printPackages(w, &insightData.Dependencies, 0)
 	fmt.Fprintf(w, tableClose)
+	fmt.Fprintf(w, htmlFooter)
 }
 
-func printPackages(w io.Writer, insightData *map[string]*insights.DependencyData, spacing string) {
-	i := 1
+func printPackages(w io.Writer, insightData *map[string]*insights.DependencyData, parentID int) int {
+	i := parentID
 	for packageName, packageData := range *insightData {
-		formatString := ""
-		if i == len(*insightData) {
-			formatString = spacing + "└ " + packageName
-		} else {
-			formatString = spacing + "├ " + packageName
-		}
-		licenseAnalysis := "No License Data Found"
+		i++
+		var licenseAnalysis string
 		if packageData.LicenseAnalysis != nil {
 			licenseAnalysis = produceLicenseString(packageData.LicenseAnalysis)
 		} else {
 			licenseAnalysis = packageData.LicenseAnalysisError
 		}
-		fmt.Fprintf(w, tableRow, formatString, packageData.Version, packageData.DeclaredLicenses, licenseAnalysis)
+		fmt.Fprintf(w, tableRow, i, parentID, packageName, packageData.Version, packageData.DeclaredLicenses, licenseAnalysis)
 		if packageData.Depedencies != nil {
-			newSpacing := spacing + "│  "
-			if i == len(*insightData) {
-				newSpacing = spacing + "   "
-			}
-			printPackages(w, &packageData.Depedencies, newSpacing)
+			i = printPackages(w, &packageData.Depedencies, i)
 		}
-		i++
 	}
+	return i
 }
 
 func printVulnerabilities(w io.Writer, vulnerabilityReport *map[string]*insights.DependencyData, spacing string) {

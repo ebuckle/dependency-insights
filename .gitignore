@@ -16,3 +16,4 @@
 output.json
 dependency-insights
 report.html
+.DS_Store
