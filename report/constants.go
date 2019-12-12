@@ -22,6 +22,12 @@ const (
 			initState: 'expanded',
 		});
 	</script>
+	<script type="text/javascript">	
+	$('#tableVuln').tbltree({
+		initState: 'expanded',
+		treeColumn: 3
+	});
+	</script>
 	</body>
 	</html>
 	`
@@ -47,7 +53,7 @@ const (
 	`
 
 	vulnTableOpen = `
-	<table>
+	<table id="tableVuln" class="jquery-tbltree">
 	<tr>
 		<th>H</th>
 		<th>M</th>
@@ -58,17 +64,35 @@ const (
 		<th>L</th>
 		<th>Info</th>
 	</tr>
+	<tr row-id="0">
+		<td class="data">-</td>
+		<td class="data">-</td>
+		<td class="data">-</td>
+		<td class="data">
+		<span class="tbltree-indent"></span>
+		<span class="tbltree-expander"></span>
+		%s
+		</td>
+		<td class="data">-</td>
+		<td class="data">-</td>
+		<td class="data">-</td>
+		<td class="data">-</td>
+	</tr>
 	`
 
-	vulnTableRow = `<tr>
-		<td>%d</td>
-		<td>%d</td>
-		<td>%d</td>
-		<td>%s</td>
-		<td>%d</td>
-		<td>%d</td>
-		<td>%d</td>
-		<td>%s</td>
+	vulnTableRow = `<tr row-id="%d" parent-id="%d">
+		<td class="data">%d</td>
+		<td class="data">%d</td>
+		<td class="data">%d</td>
+		<td class="data">
+		<span class="tbltree-indent"></span>
+		<span class="tbltree-expander"></span>
+		%s
+		</td>
+		<td class="data">%d</td>
+		<td class="data">%d</td>
+		<td class="data">%d</td>
+		<td class="data">%s</td>
 		`
 
 	tableRow = `<tr row-id="%d" parent-id="%d">

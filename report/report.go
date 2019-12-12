@@ -32,8 +32,8 @@ func buildReportData(report *insights.NpmReport, vulnerabilityReport *insights.N
 
 func printReport(w io.Writer, insightData *insights.NpmReport, vulnerabilityReport *insights.NpmReport) {
 	fmt.Fprintf(w, htmlHeader)
-	fmt.Fprintf(w, vulnTableOpen)
-	printVulnerabilities(w, &vulnerabilityReport.Dependencies, "")
+	fmt.Fprintf(w, vulnTableOpen, insightData.Name)
+	printVulnerabilities(w, &vulnerabilityReport.Dependencies, 0)
 	fmt.Fprintf(w, tableClose)
 	fmt.Fprintf(w, tableOpen, insightData.Name, insightData.Version)
 	printPackages(w, &insightData.Dependencies, 0)
@@ -59,28 +59,19 @@ func printPackages(w io.Writer, insightData *map[string]*insights.DependencyData
 	return i
 }
 
-func printVulnerabilities(w io.Writer, vulnerabilityReport *map[string]*insights.DependencyData, spacing string) {
-	i := 1
+func printVulnerabilities(w io.Writer, vulnerabilityReport *map[string]*insights.DependencyData, parentID int) int {
+	i := parentID
 	for packageName, packageData := range *vulnerabilityReport {
-		formatString := ""
-		if i == len(*vulnerabilityReport) {
-			formatString = spacing + "└ " + packageName
-		} else {
-			formatString = spacing + "├ " + packageName
-		}
+		i++
 		infoString := produceInfoString(packageData.Audit)
-		fmt.Fprintf(w, vulnTableRow, packageData.Vulnerabilities.High, packageData.Vulnerabilities.Medium, packageData.Vulnerabilities.Low,
-			formatString, packageData.ChildVulnerabilities.High, packageData.ChildVulnerabilities.Medium, packageData.ChildVulnerabilities.Low,
+		fmt.Fprintf(w, vulnTableRow, i, parentID, packageData.Vulnerabilities.High, packageData.Vulnerabilities.Medium, packageData.Vulnerabilities.Low,
+			packageName, packageData.ChildVulnerabilities.High, packageData.ChildVulnerabilities.Medium, packageData.ChildVulnerabilities.Low,
 			infoString)
 		if packageData.Depedencies != nil {
-			newSpacing := spacing + "│  "
-			if i == len(*vulnerabilityReport) {
-				newSpacing = spacing + "----"
-			}
-			printVulnerabilities(w, &packageData.Depedencies, newSpacing)
+			i = printVulnerabilities(w, &packageData.Depedencies, i)
 		}
-		i++
 	}
+	return i
 }
 
 func produceInfoString(auditData map[string]interface{}) string {
