@@ -238,18 +238,6 @@ func transferNodeData(packageJSON map[string]interface{}, packageData *packageJS
 		packageData.DeclaredLicenses = "No Declared License Found"
 	}
 
-	if str, ok := packageJSON["license"].(string); ok {
-		packageData.DeclaredLicenses = str
-	} else if str, ok := packageJSON["licenses"].(string); ok {
-		packageData.DeclaredLicenses = str
-	} else if byteOut, err := json.Marshal(packageJSON["license"]); err != nil {
-		packageData.DeclaredLicenses = string(byteOut)
-	} else if byteOut, err := json.Marshal(packageJSON["licenses"]); err != nil {
-		packageData.DeclaredLicenses = string(byteOut)
-	} else {
-		packageData.DeclaredLicenses = "No Declared License Found"
-	}
-
 	packageData.Path = path
 }
 
