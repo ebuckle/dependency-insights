@@ -3,6 +3,7 @@ package insights
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -228,6 +229,15 @@ func transferNodeData(packageJSON map[string]interface{}, packageData *packageJS
 	if str, ok := packageJSON["description"].(string); ok {
 		packageData.Description = str
 	}
+
+	if packageJSON["license"] != nil {
+		packageData.DeclaredLicenses = parseLicenseDeclaration(packageJSON["license"])
+	} else if packageJSON["licenses"] != nil {
+		packageData.DeclaredLicenses = parseLicenseDeclaration(packageJSON["licenses"])
+	} else {
+		packageData.DeclaredLicenses = "No Declared License Found"
+	}
+
 	if str, ok := packageJSON["license"].(string); ok {
 		packageData.DeclaredLicenses = str
 	} else if str, ok := packageJSON["licenses"].(string); ok {
@@ -239,7 +249,29 @@ func transferNodeData(packageJSON map[string]interface{}, packageData *packageJS
 	} else {
 		packageData.DeclaredLicenses = "No Declared License Found"
 	}
+
 	packageData.Path = path
+}
+
+func parseLicenseDeclaration(licenseDeclaration interface{}) string {
+	if str, ok := licenseDeclaration.(string); ok {
+		return str
+	} else if byteOut, err := json.Marshal(licenseDeclaration); err != nil {
+		return string(byteOut)
+	} else if arr, ok := licenseDeclaration.([]interface{}); ok {
+		str := ""
+		for _, val := range arr {
+			byteOut, err := json.Marshal(val)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			str += string(byteOut) + "\n"
+		}
+		return str
+	} else {
+		return "No Declared License Found"
+	}
 }
 
 // performLicenseCheck takes an existing map of package data and performs a license check on each package
