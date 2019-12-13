@@ -258,19 +258,8 @@ func parseLicenseDeclaration(licenseDeclaration interface{}) string {
 		return str
 	} else if byteOut, err := json.Marshal(licenseDeclaration); err != nil {
 		return string(byteOut)
-	} else if arr, ok := licenseDeclaration.([]interface{}); ok {
-		str := ""
-		for _, val := range arr {
-			byteOut, err := json.Marshal(val)
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			str += string(byteOut) + "\n"
-		}
-		return str
 	} else {
-		return "No Declared License Found"
+		return fmt.Sprintf("%v", licenseDeclaration)
 	}
 }
 
