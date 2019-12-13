@@ -25,6 +25,8 @@ type DependencyData struct {
 	DeclaredLicenses     string                     `json:"declaredLicenses"`
 	Vulnerabilities      *Vulnerabilities           `json:"Vulnerabilities"`
 	ChildVulnerabilities *Vulnerabilities           `json:"childVulnerabilities"`
+	LicenseData          *LicenseData               `json:"licenseData"`
+	ChildLicenseData     *LicenseData               `json:"childLicenseData"`
 }
 
 // NpmReport contains information about the parent project, dependencies, npm audit and project issues
@@ -49,6 +51,14 @@ type Vulnerabilities struct {
 	High   int `json:"high"`
 	Medium int `json:"medium"`
 	Low    int `json:"low"`
+}
+
+// LicenseData stores data about licensing issues for a package
+type LicenseData struct {
+	Unknown              int    `json:"unknown"`
+	RiskyKeywords        int    `json:"riskyKeywords"`
+	LicenseCompatability int    `json:"licenseCompatability"`
+	Comment              string `json:"comment"`
 }
 
 // ProduceInsights calls the appropriate crawling function for the provided language and then reports on licensing
@@ -83,6 +93,7 @@ func ProduceInsights(language string, projectPath string) (*NpmReport, error) {
 		return nil, err
 	}
 
+	calculateLicenseTotals(&insightData.Dependencies)
 	performLicenseCheck(&insightData.Dependencies)
 
 	if language == "nodejs" {
@@ -219,8 +230,14 @@ func transferNodeData(packageJSON map[string]interface{}, packageData *packageJS
 	}
 	if str, ok := packageJSON["license"].(string); ok {
 		packageData.DeclaredLicenses = str
+	} else if str, ok := packageJSON["licenses"].(string); ok {
+		packageData.DeclaredLicenses = str
+	} else if byteOut, err := json.Marshal(packageJSON["license"]); err != nil {
+		packageData.DeclaredLicenses = string(byteOut)
+	} else if byteOut, err := json.Marshal(packageJSON["licenses"]); err != nil {
+		packageData.DeclaredLicenses = string(byteOut)
 	} else {
-		packageData.DeclaredLicenses = "No Declared License"
+		packageData.DeclaredLicenses = "No Declared License Found"
 	}
 	packageData.Path = path
 }
@@ -329,13 +346,41 @@ func mapData(dependencies *map[string]*DependencyData, packageData *packageJSOND
 		if dep.Vulnerabilities == nil {
 			dep.Vulnerabilities = new(Vulnerabilities)
 			dep.ChildVulnerabilities = new(Vulnerabilities)
+			dep.LicenseData = new(LicenseData)
+			dep.ChildLicenseData = new(LicenseData)
 		}
 		if dep.Version != "" && key+"@"+dep.Version == moduleID {
 			dep.Path = packageData.Path
 			dep.DeclaredLicenses = packageData.DeclaredLicenses
+			checkLicensing(dep)
 		}
 		if dep.Depedencies != nil {
 			mapData(&dep.Depedencies, packageData, moduleID)
 		}
 	}
+}
+
+func checkLicensing(depdendency *DependencyData) {
+	if depdendency.DeclaredLicenses == "No Declared License Found" || depdendency.DeclaredLicenses == "UNLICENSED" {
+		depdendency.LicenseData.Unknown++
+		depdendency.LicenseData.Comment += "Declared license unclear.\n"
+	}
+}
+
+func calculateLicenseTotals(dependencies *map[string]*DependencyData) *LicenseData {
+	licenseTally := new(LicenseData)
+	for _, dep := range *dependencies {
+		if dep.Depedencies != nil {
+			sumLicensing(dep.ChildLicenseData, calculateLicenseTotals(&dep.Depedencies))
+		}
+		sumLicensing(dep.ChildLicenseData, dep.LicenseData)
+		sumLicensing(licenseTally, dep.ChildLicenseData)
+	}
+	return licenseTally
+}
+
+func sumLicensing(parentTally *LicenseData, childTally *LicenseData) {
+	parentTally.Unknown += childTally.Unknown
+	parentTally.RiskyKeywords += childTally.RiskyKeywords
+	parentTally.LicenseCompatability += childTally.LicenseCompatability
 }

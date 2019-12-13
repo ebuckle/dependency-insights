@@ -28,6 +28,12 @@ const (
 		treeColumn: 3
 	});
 	</script>
+	<script type="text/javascript">	
+	$('#tableLicense').tbltree({
+		initState: 'expanded',
+		treeColumn: 3
+	});
+	</script>
 	</body>
 	</html>
 	`
@@ -50,6 +56,18 @@ const (
 		<td></td>
 		<td></td>
   	</tr>
+	`
+
+	tableRow = `<tr row-id="%d" parent-id="%d">
+		<td>
+		<span class="tbltree-indent"></span>
+		<span class="tbltree-expander"></span>
+		%s
+		</td>
+		<td class="data">%s</td>
+		<td class="data">%s</td>
+		<td class="data">%s</td>
+	</tr>
 	`
 
 	vulnTableOpen = `
@@ -93,18 +111,55 @@ const (
 		<td class="data">%d</td>
 		<td class="data">%d</td>
 		<td class="data">%s</td>
-		`
+	`
 
-	tableRow = `<tr row-id="%d" parent-id="%d">
-		<td>
+	licenseTableOpen = `
+	<table id="tableLicense" class="jquery-tbltree">
+	<tr>
+		<th>UL</th>
+		<th>RK</th>
+		<th>LC</th>
+		<th></th>
+		<th>UL</th>
+		<th>RK</th>
+		<th>LC</th>
+		<th>Declared</th>
+		<th>Detected</th>
+		<th>Comment</th>
+	</tr>
+	<tr row-id="0">
+		<td class="data">-</td>
+		<td class="data">-</td>
+		<td class="data">-</td>
+		<td class="data">
 		<span class="tbltree-indent"></span>
 		<span class="tbltree-expander"></span>
 		%s
 		</td>
-		<td class="data">%s</td>
-		<td class="data">%s</td>
-		<td class="data">%s</td>
+		<td class="data">-</td>
+		<td class="data">-</td>
+		<td class="data">-</td>
+		<td class="data">-</td>
+		<td class="data">-</td>
+		<td class="data">-</td>
 	</tr>
+	`
+
+	licenseTableRow = `<tr row-id="%d" parent-id="%d">
+	<td class="data">%d</td>
+	<td class="data">%d</td>
+	<td class="data">%d</td>
+	<td class="data">
+	<span class="tbltree-indent"></span>
+	<span class="tbltree-expander"></span>
+	%s
+	</td>
+	<td class="data">%d</td>
+	<td class="data">%d</td>
+	<td class="data">%d</td>
+	<td class="data">%s</td>
+	<td class="data">%s</td>
+	<td class="data">%s</td>
 	`
 
 	tableClose = `
