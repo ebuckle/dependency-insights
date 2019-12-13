@@ -247,7 +247,7 @@ func parseLicenseDeclaration(licenseDeclaration interface{}) string {
 	} else if byteOut, err := json.Marshal(licenseDeclaration); err != nil {
 		return string(byteOut)
 	} else {
-		return fmt.Sprintf("%v", licenseDeclaration)
+		return fmt.Sprintf("%#+v", licenseDeclaration)
 	}
 }
 

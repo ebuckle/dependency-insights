@@ -1,14 +1,17 @@
 package report
 
 const (
+	pageOpen = `
+	<div id="content" class="bg-dark">
+	`
+
 	htmlHeader = `<html>
 	<head>
 		<meta charset="utf-8">
 		<title>Dependency Insights</title>
+		<link type="text/css" href="./report/display/css/default.css" rel="stylesheet">
 		<link type="text/css" href="./report/display/css/jquery.tbltree.css" rel="stylesheet">
-		<link type="text/css" href="./report/display/css/styles.css" rel="stylesheet">
-		<link type="text/css" href="./report/display/css/pygment_trac.css" rel="stylesheet">
-		<link type="text/css" href="./report/display/css/css.css" rel="stylesheet">
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     </head>
     <body>
 		<div id="doctitle">Dependency Insights</div>
@@ -39,7 +42,7 @@ const (
 	`
 
 	tableOpen = `
-	<table id="table" class="jquery-tbltree">
+	<table id="table" class="jquery-tbltree table table-bordered table-sm table-dark">
 	<tr>
 	  <th>Package Name</th>
 	  <th>Package Version</th>
@@ -62,7 +65,9 @@ const (
 		<td>
 		<span class="tbltree-indent"></span>
 		<span class="tbltree-expander"></span>
+		<a href="https://www.npmjs.com/package/%s" target="_blank">
 		%s
+		</a>
 		</td>
 		<td class="data">%s</td>
 		<td class="data">%s</td>
@@ -71,7 +76,7 @@ const (
 	`
 
 	vulnTableOpen = `
-	<table id="tableVuln" class="jquery-tbltree">
+	<table id="tableVuln" class="jquery-tbltree table table-bordered table-sm table-dark">
 	<tr>
 		<th>H</th>
 		<th>M</th>
@@ -105,7 +110,9 @@ const (
 		<td class="data">
 		<span class="tbltree-indent"></span>
 		<span class="tbltree-expander"></span>
-		%s
+		<a href="https://www.npmjs.com/package/%s" target="_blank">
+		%s@%s
+		</a>
 		</td>
 		<td class="data">%d</td>
 		<td class="data">%d</td>
@@ -114,7 +121,7 @@ const (
 	`
 
 	licenseTableOpen = `
-	<table id="tableLicense" class="jquery-tbltree">
+	<table id="tableLicense" class="jquery-tbltree table table-bordered table-sm table-dark">
 	<tr>
 		<th>UL</th>
 		<th>RK</th>
@@ -152,7 +159,9 @@ const (
 	<td class="data">
 	<span class="tbltree-indent"></span>
 	<span class="tbltree-expander"></span>
-	%s
+	<a href="https://www.npmjs.com/package/%s" target="_blank">
+	%s@%s
+	</a>
 	</td>
 	<td class="data">%d</td>
 	<td class="data">%d</td>
@@ -164,5 +173,9 @@ const (
 
 	tableClose = `
 	</table>
+	`
+
+	pageClose = `
+	</div>
 	`
 )

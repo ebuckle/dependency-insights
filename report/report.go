@@ -34,6 +34,7 @@ func buildReportData(report *insights.NpmReport, vulnerabilityReport *insights.N
 
 func printReport(w io.Writer, insightData *insights.NpmReport, vulnerabilityReport *insights.NpmReport, licenseReport *insights.NpmReport) {
 	fmt.Fprintf(w, htmlHeader)
+	fmt.Fprintf(w, pageOpen)
 
 	fmt.Fprintf(w, vulnTableOpen, insightData.Name)
 	printVulnerabilities(w, &vulnerabilityReport.Dependencies, 0)
@@ -47,6 +48,7 @@ func printReport(w io.Writer, insightData *insights.NpmReport, vulnerabilityRepo
 	printPackages(w, &insightData.Dependencies, 0)
 	fmt.Fprintf(w, tableClose)
 
+	fmt.Fprintf(w, pageClose)
 	fmt.Fprintf(w, htmlFooter)
 }
 
@@ -60,7 +62,7 @@ func printPackages(w io.Writer, insightData *map[string]*insights.DependencyData
 		} else {
 			licenseAnalysis = packageData.LicenseAnalysisError
 		}
-		fmt.Fprintf(w, tableRow, i, parentID, packageName, packageData.Version, packageData.DeclaredLicenses, licenseAnalysis)
+		fmt.Fprintf(w, tableRow, i, parentID, packageName, packageName, packageData.Version, packageData.DeclaredLicenses, licenseAnalysis)
 		if packageData.Depedencies != nil {
 			i = printPackages(w, &packageData.Depedencies, i)
 		}
@@ -73,8 +75,8 @@ func printVulnerabilities(w io.Writer, vulnerabilityReport *map[string]*insights
 	for packageName, packageData := range *vulnerabilityReport {
 		i++
 		infoString := produceInfoString(packageData.Audit)
-		fmt.Fprintf(w, vulnTableRow, i, parentID, packageData.Vulnerabilities.High, packageData.Vulnerabilities.Medium, packageData.Vulnerabilities.Low,
-			packageName, packageData.ChildVulnerabilities.High, packageData.ChildVulnerabilities.Medium, packageData.ChildVulnerabilities.Low,
+		fmt.Fprintf(w, vulnTableRow, i, parentID, packageData.Vulnerabilities.High, packageData.Vulnerabilities.Medium, packageData.Vulnerabilities.Low, packageName,
+			packageName, packageData.Version, packageData.ChildVulnerabilities.High, packageData.ChildVulnerabilities.Medium, packageData.ChildVulnerabilities.Low,
 			infoString)
 		if packageData.Depedencies != nil {
 			i = printVulnerabilities(w, &packageData.Depedencies, i)
@@ -87,8 +89,8 @@ func printLicenseData(w io.Writer, licenseReport *map[string]*insights.Dependenc
 	i := parentID
 	for packageName, packageData := range *licenseReport {
 		i++
-		fmt.Fprintf(w, licenseTableRow, i, parentID, packageData.LicenseData.Unknown, packageData.LicenseData.RiskyKeywords, packageData.LicenseData.LicenseCompatability,
-			packageName, packageData.ChildLicenseData.Unknown, packageData.ChildLicenseData.RiskyKeywords, packageData.ChildLicenseData.LicenseCompatability,
+		fmt.Fprintf(w, licenseTableRow, i, parentID, packageData.LicenseData.Unknown, packageData.LicenseData.RiskyKeywords, packageData.LicenseData.LicenseCompatability, packageName,
+			packageName, packageData.Version, packageData.ChildLicenseData.Unknown, packageData.ChildLicenseData.RiskyKeywords, packageData.ChildLicenseData.LicenseCompatability,
 			packageData.DeclaredLicenses, produceLicenseString(packageData.LicenseAnalysis), packageData.LicenseData.Comment)
 		if packageData.Depedencies != nil {
 			i = printLicenseData(w, &packageData.Depedencies, i)
