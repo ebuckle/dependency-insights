@@ -2,7 +2,7 @@ package report
 
 const (
 	pageOpen = `
-	<div id="content" class="bg-dark">
+	<div id="content" class="">
 	`
 
 	htmlHeader = `<html>
@@ -11,7 +11,7 @@ const (
 		<title>Dependency Insights</title>
 		<link type="text/css" href="./report/display/css/default.css" rel="stylesheet">
 		<link type="text/css" href="./report/display/css/jquery.tbltree.css" rel="stylesheet">
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+		<link rel="stylesheet" href="./report/display/css/darkly.css" rel="stylesheet">
     </head>
     <body>
 		<div id="doctitle">Dependency Insights</div>
@@ -38,13 +38,31 @@ const (
 	});
 	</script>
 	<script type="text/javascript">	
-	var allHighCells = document.getElementsById("high")
+	var allHighCells = document.getElementsByClassName("high")
 	for(var i = 0, max = allHighCells.length; i < max; i++) {
 		var node = allHighCells[i];
 		var currentText = node.childNodes[0].nodeValue;
 
-		if (currentText !== "0")
+		if (currentText !== "0" && currentText !== "-")
 			node.classList.add("table-danger");
+	}
+
+	var allMediumCells = document.getElementsByClassName("medium")
+	for(var i = 0, max = allMediumCells.length; i < max; i++) {
+		var node = allMediumCells[i];
+		var currentText = node.childNodes[0].nodeValue;
+
+		if (currentText !== "0" && currentText !== "-")
+			node.classList.add("table-warning");
+	}
+
+	var allLowCells = document.getElementsByClassName("low")
+	for(var i = 0, max = allLowCells.length; i < max; i++) {
+		var node = allLowCells[i];
+		var currentText = node.childNodes[0].nodeValue;
+
+		if (currentText !== "0" && currentText !== "-")
+			node.classList.add("table-warning");
 	}
 	</script>
 	</body>
@@ -53,9 +71,10 @@ const (
 
 	summaryTable = `
 	<div class="card">
-			<div class="card-body">
+			<div class="card-body card">
 				<h5 class="card-title">Summary</h5>
-				<table id="table" class="jquery-tbltree table table-bordered table-sm">
+				<table id="table" class="jquery-tbltree table table-bordered table-sm table-striped table-hover">
+				<thead class="thead">
 					<tr>
 						<th colspan="3">Security Risks</th>
 						<th colspan="3">Legal Risks</th>
@@ -67,14 +86,15 @@ const (
 						<th>UL</th>
 						<th>RK</th>
 						<th>LC</th>
-					  </tr>
+					</tr>
+				</thead>
 					<tr>
-					  <td id="high">%d</td>
-					  <td>%d</td>
-					  <td>%d</td>
-					  <td>%d</td>
-					  <td>%d</td>
-					  <td>%d</td>
+					  <td class="high">%d</td>
+					  <td class="medium">%d</td>
+					  <td class="low">%d</td>
+					  <td class="high">%d</td>
+					  <td class="medium">%d</td>
+					  <td class="low">%d</td>
 					</tr>
 	`
 
@@ -82,13 +102,15 @@ const (
 	<div class="card">
 			<div class="card-body">
 				<h5 class="card-title">Security Risks</h5>
-	<table id="table" class="jquery-tbltree table table-bordered table-sm">
+	<table id="table" class="jquery-tbltree table table-bordered table-sm table-striped table-hover">
+	<thead class="thead">
 	<tr>
 	  <th>Package Name</th>
 	  <th>Package Version</th>
 	  <th>Declared License(s)</th>
 	  <th>Detected License (Confidence)</th>
 	</tr>
+	</thead>
 	<tr row-id="0">
 		<td id="name">
 		<span class="tbltree-indent"></span>
@@ -119,7 +141,8 @@ const (
 	<div class="card">
 			<div class="card-body">
 				<h5 class="card-title">Security Risks</h5>
-	<table id="tableVuln" class="jquery-tbltree table table-bordered table-sm">
+	<table id="tableVuln" class="jquery-tbltree table table-bordered table-sm table-striped table-hover">
+	<thead class="thead">
 	<tr>
 		<th colspan="3">Package Totals</th>
 		<th></th>
@@ -136,10 +159,11 @@ const (
 		<th>L</th>
 		<th>Info</th>
 	</tr>
+	</thead>
 	<tr row-id="0">
-		<td class="data">-</td>
-		<td class="data">-</td>
-		<td class="data">-</td>
+		<td class="data high">-</td>
+		<td class="data medium">-</td>
+		<td class="data low">-</td>
 		<td class="data" id="name">
 		<span class="tbltree-indent"></span>
 		<span class="tbltree-expander"></span>
@@ -153,9 +177,9 @@ const (
 	`
 
 	vulnTableRow = `<tr row-id="%d" parent-id="%d">
-		<td class="data">%d</td>
-		<td class="data">%d</td>
-		<td class="data">%d</td>
+		<td class="data high">%d</td>
+		<td class="data medium">%d</td>
+		<td class="data low">%d</td>
 		<td class="data" id="name">
 		<span class="tbltree-indent"></span>
 		<span class="tbltree-expander"></span>
@@ -173,7 +197,8 @@ const (
 	<div class="card">
 			<div class="card-body">
 				<h5 class="card-title">License Risks</h5>
-	<table id="tableLicense" class="jquery-tbltree table table-bordered table-sm">
+	<table id="tableLicense" class="jquery-tbltree table table-bordered table-sm table-striped table-hover">
+	<thead class="thead">
 	<tr>
 		<th colspan="3">Package Totals</th>
 		<th></th>
@@ -194,10 +219,11 @@ const (
 		<th>Detected (Confidence)</th>
 		<th>Comment</th>
 	</tr>
+	</thead>
 	<tr row-id="0">
-		<td class="data">-</td>
-		<td class="data">-</td>
-		<td class="data">-</td>
+		<td class="data high">-</td>
+		<td class="data medium">-</td>
+		<td class="data low">-</td>
 		<td class="data" id="name">
 		<span class="tbltree-indent"></span>
 		<span class="tbltree-expander"></span>
@@ -213,9 +239,9 @@ const (
 	`
 
 	licenseTableRow = `<tr row-id="%d" parent-id="%d">
-	<td class="data">%d</td>
-	<td class="data">%d</td>
-	<td class="data">%d</td>
+	<td class="data high">%d</td>
+	<td class="data medium">%d</td>
+	<td class="data low">%d</td>
 	<td class="data" id="name">
 	<span class="tbltree-indent"></span>
 	<span class="tbltree-expander"></span>
