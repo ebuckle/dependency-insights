@@ -116,6 +116,13 @@ func produceLicenseString(licenseAnalysis map[string]api.Match) string {
 	returnString := "<ul>"
 	for licenseName, licenseData := range licenseAnalysis {
 		returnString += "<li>" + licenseName + "(" + fmt.Sprintf("%.2f%%", (licenseData.Confidence*100)) + ")</li>"
+		if licenseData.Files != nil {
+			returnString += "<ul>"
+			for file, confidence := range licenseData.Files {
+				returnString += "<li>" + file + "(" + fmt.Sprintf("%.2f%%", (confidence*100)) + ")</li>"
+			}
+			returnString += "</ul>"
+		}
 	}
 	returnString += "</ul>"
 	return returnString
