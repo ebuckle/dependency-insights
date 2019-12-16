@@ -46,8 +46,9 @@ const (
 
 		if (currentText !== "0" && currentText !== "-") {
 			node.classList.add("table-warning");
-			var module = node.parentElement.querySelector('#name');
+			var module = node.parentElement.querySelector('#name')
 			if (module !== null) {
+				module = module.querySelector('a');
 				module.classList.add("table-warning");
 			}
 		}
@@ -60,8 +61,9 @@ const (
 
 		if (currentText !== "0" && currentText !== "-") {
 			node.classList.add("table-warning");
-			var module = node.parentElement.querySelector('#name');
+			var module = node.parentElement.querySelector('#name')
 			if (module !== null) {
+				module = module.querySelector('a');
 				module.classList.add("table-warning");
 			}
 		}
@@ -74,8 +76,9 @@ const (
 
 		if (currentText !== "0" && currentText !== "-") {
 			node.classList.add("table-danger");
-			var module = node.parentElement.querySelector('#name');
+			var module = node.parentElement.querySelector('#name')
 			if (module !== null) {
+				module = module.querySelector('a');
 				module.classList.add("table-danger");
 			}
 		}
@@ -88,7 +91,8 @@ const (
 	summaryTable = `
 	<div class="card">
 			<div class="card-body card">
-				<h5 class="card-title">Summary</h5>
+				<h2 class="card-title">Summary</h2>
+				<hr>
 				<table id="table" class="jquery-tbltree table table-bordered table-sm table-striped table-hover">
 				<thead class="thead">
 					<tr>
@@ -117,7 +121,8 @@ const (
 	tableOpen = `
 	<div class="card">
 			<div class="card-body">
-				<h5 class="card-title">Security Risks</h5>
+				<h2 class="card-title">Security Risks</h2>
+				<hr>
 	<table id="table" class="jquery-tbltree table table-bordered table-sm table-striped table-hover">
 	<thead class="thead">
 	<tr>
@@ -156,7 +161,8 @@ const (
 	vulnTableOpen = `
 	<div class="card">
 			<div class="card-body">
-				<h5 class="card-title">Security Risks</h5>
+				<h2 class="card-title">Security Risks</h2>
+				<hr>
 	<table id="tableVuln" class="jquery-tbltree table table-bordered table-sm table-striped table-hover">
 	<thead class="thead">
 	<tr>
@@ -212,7 +218,8 @@ const (
 	licenseTableOpen = `
 	<div class="card">
 			<div class="card-body">
-				<h5 class="card-title">License Risks</h5>
+				<h2 class="card-title">License Risks</h2>
+				<hr>
 	<table id="tableLicense" class="jquery-tbltree table table-bordered table-sm table-striped table-hover">
 	<thead class="thead">
 	<tr>
