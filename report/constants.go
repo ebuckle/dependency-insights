@@ -37,6 +37,16 @@ const (
 		treeColumn: 3
 	});
 	</script>
+	<script type="text/javascript">	
+	var allHighCells = document.getElementsById("high")
+	for(var i = 0, max = allHighCells.length; i < max; i++) {
+		var node = allHighCells[i];
+		var currentText = node.childNodes[0].nodeValue;
+
+		if (currentText !== "0")
+			node.classList.add("table-danger");
+	}
+	</script>
 	</body>
 	</html>
 	`
@@ -59,7 +69,7 @@ const (
 						<th>LC</th>
 					  </tr>
 					<tr>
-					  <td>%d</td>
+					  <td id="high">%d</td>
 					  <td>%d</td>
 					  <td>%d</td>
 					  <td>%d</td>
