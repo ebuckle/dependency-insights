@@ -4,12 +4,24 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 
 	"github.com/ebuckle/dependency-insights/insights"
 	"github.com/getlantern/deepcopy"
 	"github.com/pkg/browser"
 	"gopkg.in/src-d/go-license-detector.v3/licensedb/api"
 )
+
+type pair struct {
+	Key   string
+	Value float32
+}
+
+type pairList []pair
+
+func (p pairList) Len() int           { return len(p) }
+func (p pairList) Less(i, j int) bool { return p[i].Value < p[j].Value }
+func (p pairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
 // ProduceReport takes the raw json data from a dependency analysis and produces an HTML report
 func ProduceReport(insightData *insights.NpmReport) {
@@ -114,11 +126,21 @@ func produceInfoString(auditData map[string]interface{}) string {
 
 func produceLicenseString(licenseAnalysis map[string]api.Match) string {
 	returnString := "<ul>"
+	sortedList := make(pairList, len(licenseAnalysis))
+	i := 0
 	for licenseName, licenseData := range licenseAnalysis {
-		returnString += "<li>" + licenseName + "(" + fmt.Sprintf("%.2f%%", (licenseData.Confidence*100)) + ")</li>"
-		if licenseData.Files != nil {
+		sortedList[i] = pair{licenseName, licenseData.Confidence}
+		i++
+	}
+	sort.Sort(sort.Reverse(sortedList))
+
+	for _, pair := range sortedList {
+		licenseName := pair.Key
+
+		returnString += "<li>" + licenseName + "(" + fmt.Sprintf("%.2f%%", (licenseAnalysis[licenseName].Confidence*100)) + ")</li>"
+		if licenseAnalysis[licenseName].Files != nil {
 			returnString += "<ul>"
-			for file, confidence := range licenseData.Files {
+			for file, confidence := range licenseAnalysis[licenseName].Files {
 				returnString += "<li>" + file + "(" + fmt.Sprintf("%.2f%%", (confidence*100)) + ")</li>"
 			}
 			returnString += "</ul>"
