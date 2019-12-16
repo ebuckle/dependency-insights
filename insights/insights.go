@@ -18,7 +18,7 @@ type DependencyData struct {
 	Version              string                     `json:"version"`
 	From                 string                     `json:"from"`
 	Resolved             string                     `json:"resolved"`
-	Depedencies          map[string]*DependencyData `json:"dependencies"`
+	Dependencies         map[string]*DependencyData `json:"dependencies"`
 	Path                 string                     `json:"path"`
 	Audit                map[string]interface{}     `json:"audit"`
 	LicenseAnalysis      map[string]api.Match       `json:"licenseAnalysis"`
@@ -86,7 +86,7 @@ func ProduceInsights(language string, projectPath string) (*NpmReport, error) {
 	// case "go":
 	// err = goWalk(projectPath, insightData)
 	default:
-		err := errors.New("language not recognised")
+		err := errors.New("language not recognized")
 		return nil, err
 	}
 
@@ -274,8 +274,8 @@ func performLicenseCheck(dependencies *map[string]*DependencyData) {
 			dep.LicenseAnalysis = results
 		}
 
-		if dep.Depedencies != nil {
-			performLicenseCheck(&dep.Depedencies)
+		if dep.Dependencies != nil {
+			performLicenseCheck(&dep.Dependencies)
 		}
 	}
 }
@@ -316,7 +316,7 @@ func checkVulnerabilities(projectPath string, insightData *NpmReport) error {
 }
 
 func mapVulnerabilities(dependencies *map[string]*DependencyData, id string, advisory map[string]interface{}, moduleID string) *Vulnerabilities {
-	vulnTally := new(Vulnerabilities)
+	vulnerabilityTally := new(Vulnerabilities)
 	for key, dep := range *dependencies {
 		if dep.Version != "" && key+"@"+dep.Version == moduleID {
 			if dep.Audit == nil {
@@ -326,22 +326,22 @@ func mapVulnerabilities(dependencies *map[string]*DependencyData, id string, adv
 			switch advisory["severity"].(string) {
 			case "high":
 				dep.Vulnerabilities.High++
-				vulnTally.High++
+				vulnerabilityTally.High++
 			case "medium":
 				dep.Vulnerabilities.Medium++
-				vulnTally.Medium++
+				vulnerabilityTally.Medium++
 			case "low":
 				dep.Vulnerabilities.Low++
-				vulnTally.Low++
+				vulnerabilityTally.Low++
 			}
 		}
-		if dep.Depedencies != nil {
-			childVulns := mapVulnerabilities(&dep.Depedencies, id, advisory, moduleID)
-			sumVulnerabilities(dep.ChildVulnerabilities, childVulns)
-			sumVulnerabilities(vulnTally, childVulns)
+		if dep.Dependencies != nil {
+			childTally := mapVulnerabilities(&dep.Dependencies, id, advisory, moduleID)
+			sumVulnerabilities(dep.ChildVulnerabilities, childTally)
+			sumVulnerabilities(vulnerabilityTally, childTally)
 		}
 	}
-	return vulnTally
+	return vulnerabilityTally
 }
 
 func sumVulnerabilities(parentTally *Vulnerabilities, childTally *Vulnerabilities) {
@@ -363,24 +363,24 @@ func mapData(dependencies *map[string]*DependencyData, packageData *packageJSOND
 			dep.DeclaredLicenses = packageData.DeclaredLicenses
 			checkLicensing(dep)
 		}
-		if dep.Depedencies != nil {
-			mapData(&dep.Depedencies, packageData, moduleID)
+		if dep.Dependencies != nil {
+			mapData(&dep.Dependencies, packageData, moduleID)
 		}
 	}
 }
 
-func checkLicensing(depdendency *DependencyData) {
-	if depdendency.DeclaredLicenses == "No Declared License Found" || depdendency.DeclaredLicenses == "UNLICENSED" {
-		depdendency.LicenseData.Unknown++
-		depdendency.LicenseData.Comment += "Declared license unclear.\n"
+func checkLicensing(dependency *DependencyData) {
+	if dependency.DeclaredLicenses == "No Declared License Found" || dependency.DeclaredLicenses == "UNLICENSED" {
+		dependency.LicenseData.Unknown++
+		dependency.LicenseData.Comment += "Declared license unclear.\n"
 	}
 }
 
 func calculateLicenseTotals(dependencies *map[string]*DependencyData) *LicenseData {
 	licenseTally := new(LicenseData)
 	for _, dep := range *dependencies {
-		if dep.Depedencies != nil {
-			sumLicensing(dep.ChildLicenseData, calculateLicenseTotals(&dep.Depedencies))
+		if dep.Dependencies != nil {
+			sumLicensing(dep.ChildLicenseData, calculateLicenseTotals(&dep.Dependencies))
 		}
 		sumLicensing(dep.ChildLicenseData, dep.LicenseData)
 		sumLicensing(licenseTally, dep.ChildLicenseData)
