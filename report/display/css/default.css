@@ -1,10 +1,6 @@
-table 
-{
-  width: 100%;
-}
-
 td
 {
   width: max-content;
   table-layout: fixed;
+  resize: none;
 }

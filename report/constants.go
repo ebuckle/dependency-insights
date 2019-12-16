@@ -41,16 +41,46 @@ const (
 	</html>
 	`
 
+	summaryTable = `
+	<div class="card">
+			<div class="card-body">
+				<h5 class="card-title">Summary</h5>
+				<table id="table" class="jquery-tbltree table table-bordered table-sm">
+					<tr>
+						<th colspan="3">Security Risks</th>
+						<th colspan="3">Legal Risks</th>
+					</tr>
+					<tr>
+						<th>H</th>
+						<th>M</th>
+						<th>L</th>
+						<th>UL</th>
+						<th>RK</th>
+						<th>LC</th>
+					  </tr>
+					<tr>
+					  <td>%d</td>
+					  <td>%d</td>
+					  <td>%d</td>
+					  <td>%d</td>
+					  <td>%d</td>
+					  <td>%d</td>
+					</tr>
+	`
+
 	tableOpen = `
-	<table id="table" class="jquery-tbltree table table-bordered table-sm table-dark">
+	<div class="card">
+			<div class="card-body">
+				<h5 class="card-title">Security Risks</h5>
+	<table id="table" class="jquery-tbltree table table-bordered table-sm">
 	<tr>
 	  <th>Package Name</th>
 	  <th>Package Version</th>
 	  <th>Declared License(s)</th>
-	  <th>Predicted License(s)</th>
+	  <th>Detected License (Confidence)</th>
 	</tr>
 	<tr row-id="0">
-		<td>
+		<td id="name">
 		<span class="tbltree-indent"></span>
 		<span class="tbltree-expander"></span>
 		%s
@@ -62,7 +92,7 @@ const (
 	`
 
 	tableRow = `<tr row-id="%d" parent-id="%d">
-		<td>
+		<td id="name">
 		<span class="tbltree-indent"></span>
 		<span class="tbltree-expander"></span>
 		<a href="https://www.npmjs.com/package/%s" target="_blank">
@@ -76,7 +106,16 @@ const (
 	`
 
 	vulnTableOpen = `
-	<table id="tableVuln" class="jquery-tbltree table table-bordered table-sm table-dark">
+	<div class="card">
+			<div class="card-body">
+				<h5 class="card-title">Security Risks</h5>
+	<table id="tableVuln" class="jquery-tbltree table table-bordered table-sm">
+	<tr>
+		<th colspan="3">Package Totals</th>
+		<th></th>
+		<th colspan="3">Tree Subtotals</th>
+		<th></th>
+	</tr>
 	<tr>
 		<th>H</th>
 		<th>M</th>
@@ -91,7 +130,7 @@ const (
 		<td class="data">-</td>
 		<td class="data">-</td>
 		<td class="data">-</td>
-		<td class="data">
+		<td class="data" id="name">
 		<span class="tbltree-indent"></span>
 		<span class="tbltree-expander"></span>
 		%s
@@ -107,7 +146,7 @@ const (
 		<td class="data">%d</td>
 		<td class="data">%d</td>
 		<td class="data">%d</td>
-		<td class="data">
+		<td class="data" id="name">
 		<span class="tbltree-indent"></span>
 		<span class="tbltree-expander"></span>
 		<a href="https://www.npmjs.com/package/%s" target="_blank">
@@ -121,7 +160,18 @@ const (
 	`
 
 	licenseTableOpen = `
-	<table id="tableLicense" class="jquery-tbltree table table-bordered table-sm table-dark">
+	<div class="card">
+			<div class="card-body">
+				<h5 class="card-title">License Risks</h5>
+	<table id="tableLicense" class="jquery-tbltree table table-bordered table-sm">
+	<tr>
+		<th colspan="3">Package Totals</th>
+		<th></th>
+		<th colspan="3">Tree Subtotals</th>
+		<th></th>
+		<th></th>
+		<th></th>
+	</tr>
 	<tr>
 		<th>UL</th>
 		<th>RK</th>
@@ -131,14 +181,14 @@ const (
 		<th>RK</th>
 		<th>LC</th>
 		<th>Declared</th>
-		<th>Detected</th>
+		<th>Detected (Confidence)</th>
 		<th>Comment</th>
 	</tr>
 	<tr row-id="0">
 		<td class="data">-</td>
 		<td class="data">-</td>
 		<td class="data">-</td>
-		<td class="data">
+		<td class="data" id="name">
 		<span class="tbltree-indent"></span>
 		<span class="tbltree-expander"></span>
 		%s
@@ -156,7 +206,7 @@ const (
 	<td class="data">%d</td>
 	<td class="data">%d</td>
 	<td class="data">%d</td>
-	<td class="data">
+	<td class="data" id="name">
 	<span class="tbltree-indent"></span>
 	<span class="tbltree-expander"></span>
 	<a href="https://www.npmjs.com/package/%s" target="_blank">
@@ -173,6 +223,8 @@ const (
 
 	tableClose = `
 	</table>
+	</div>
+	</div>
 	`
 
 	pageClose = `

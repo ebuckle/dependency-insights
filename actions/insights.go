@@ -111,7 +111,7 @@ func installDependencies(projectPath string, projectLanguage string) error {
 	var err error
 	switch projectLanguage {
 	case "nodejs":
-		npmCommand := exec.Command("npm", "install")
+		npmCommand := exec.Command("npm", "install", "--production")
 		npmCommand.Dir = projectPath
 		err = npmCommand.Run()
 	/*

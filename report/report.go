@@ -36,6 +36,10 @@ func printReport(w io.Writer, insightData *insights.NpmReport, vulnerabilityRepo
 	fmt.Fprintf(w, htmlHeader)
 	fmt.Fprintf(w, pageOpen)
 
+	fmt.Fprintf(w, summaryTable, insightData.ChildVulnerabilities.High, insightData.ChildVulnerabilities.Medium, insightData.ChildVulnerabilities.Low,
+		insightData.ChildLicenseData.Unknown, insightData.ChildLicenseData.RiskyKeywords, insightData.ChildLicenseData.LicenseCompatability)
+	fmt.Fprintf(w, tableClose)
+
 	fmt.Fprintf(w, vulnTableOpen, insightData.Name)
 	printVulnerabilities(w, &vulnerabilityReport.Dependencies, 0)
 	fmt.Fprintf(w, tableClose)
@@ -109,10 +113,11 @@ func produceInfoString(auditData map[string]interface{}) string {
 }
 
 func produceLicenseString(licenseAnalysis map[string]api.Match) string {
-	returnString := ""
+	returnString := "<ul>"
 	for licenseName, licenseData := range licenseAnalysis {
-		returnString += licenseName + "(" + fmt.Sprintf("%f", licenseData.Confidence) + ")\t"
+		returnString += "<li>" + licenseName + "(" + fmt.Sprintf("%.2f%%", (licenseData.Confidence*100)) + ")</li>"
 	}
+	returnString += "</ul>"
 	return returnString
 }
 

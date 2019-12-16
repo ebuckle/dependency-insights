@@ -32,11 +32,13 @@ type DependencyData struct {
 
 // NpmReport contains information about the parent project, dependencies, npm audit and project issues
 type NpmReport struct {
-	Dependencies map[string]*DependencyData
-	Version      string
-	Name         string
-	Problems     []string
-	Audit        map[string]interface{}
+	Dependencies         map[string]*DependencyData
+	Version              string
+	Name                 string
+	Problems             []string
+	Audit                map[string]interface{}
+	ChildVulnerabilities *Vulnerabilities
+	ChildLicenseData     *LicenseData
 }
 
 type packageJSONData struct {
@@ -75,7 +77,7 @@ func ProduceInsights(language string, projectPath string) (*NpmReport, error) {
 	// Choose correct walk function depending on the language of the project
 	switch language {
 	case "nodejs":
-		nodeCommand := exec.Command("npm", "ls", "--json")
+		nodeCommand := exec.Command("npm", "ls", "--json", "--production")
 		nodeCommand.Dir = projectPath
 		rawOutput, _ := nodeCommand.Output()
 		err = json.Unmarshal(rawOutput, insightData)
@@ -94,7 +96,7 @@ func ProduceInsights(language string, projectPath string) (*NpmReport, error) {
 		return nil, err
 	}
 
-	calculateLicenseTotals(&insightData.Dependencies)
+	insightData.ChildLicenseData = calculateLicenseTotals(&insightData.Dependencies)
 	performLicenseCheck(&insightData.Dependencies)
 
 	if language == "nodejs" {
@@ -312,11 +314,12 @@ func checkVulnerabilities(projectPath string, insightData *NpmReport) error {
 		}
 	}
 
+	insightData.ChildVulnerabilities = calculateVulnerabilityTotals(&insightData.Dependencies)
+
 	return nil
 }
 
-func mapVulnerabilities(dependencies *map[string]*DependencyData, id string, advisory map[string]interface{}, moduleID string) *Vulnerabilities {
-	vulnerabilityTally := new(Vulnerabilities)
+func mapVulnerabilities(dependencies *map[string]*DependencyData, id string, advisory map[string]interface{}, moduleID string) {
 	for key, dep := range *dependencies {
 		if dep.Version != "" && key+"@"+dep.Version == moduleID {
 			if dep.Audit == nil {
@@ -326,28 +329,34 @@ func mapVulnerabilities(dependencies *map[string]*DependencyData, id string, adv
 			switch advisory["severity"].(string) {
 			case "high":
 				dep.Vulnerabilities.High++
-				vulnerabilityTally.High++
 			case "medium":
 				dep.Vulnerabilities.Medium++
-				vulnerabilityTally.Medium++
 			case "low":
 				dep.Vulnerabilities.Low++
-				vulnerabilityTally.Low++
 			}
 		}
 		if dep.Dependencies != nil {
-			childTally := mapVulnerabilities(&dep.Dependencies, id, advisory, moduleID)
-			sumVulnerabilities(dep.ChildVulnerabilities, childTally)
-			sumVulnerabilities(vulnerabilityTally, childTally)
+			mapVulnerabilities(&dep.Dependencies, id, advisory, moduleID)
 		}
 	}
-	return vulnerabilityTally
 }
 
 func sumVulnerabilities(parentTally *Vulnerabilities, childTally *Vulnerabilities) {
 	parentTally.High += childTally.High
 	parentTally.Medium += childTally.Medium
 	parentTally.Low += childTally.Low
+}
+
+func calculateVulnerabilityTotals(dependencies *map[string]*DependencyData) *Vulnerabilities {
+	vulnerabilityTally := new(Vulnerabilities)
+	for _, dep := range *dependencies {
+		if dep.Dependencies != nil {
+			sumVulnerabilities(dep.ChildVulnerabilities, calculateVulnerabilityTotals(&dep.Dependencies))
+		}
+		sumVulnerabilities(dep.ChildVulnerabilities, dep.Vulnerabilities)
+		sumVulnerabilities(vulnerabilityTally, dep.ChildVulnerabilities)
+	}
+	return vulnerabilityTally
 }
 
 func mapData(dependencies *map[string]*DependencyData, packageData *packageJSONData, moduleID string) {
