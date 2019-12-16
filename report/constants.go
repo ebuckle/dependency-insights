@@ -9,9 +9,9 @@ const (
 	<head>
 		<meta charset="utf-8">
 		<title>Dependency Insights</title>
-		<link type="text/css" href="./report/display/css/default.css" rel="stylesheet">
 		<link type="text/css" href="./report/display/css/jquery.tbltree.css" rel="stylesheet">
 		<link rel="stylesheet" href="./report/display/css/darkly.css" rel="stylesheet">
+		<link type="text/css" href="./report/display/css/default.css" rel="stylesheet">
     </head>
     <body>
 		<div id="doctitle">Dependency Insights</div>
@@ -38,22 +38,19 @@ const (
 	});
 	</script>
 	<script type="text/javascript">	
-	var allHighCells = document.getElementsByClassName("high")
-	for(var i = 0, max = allHighCells.length; i < max; i++) {
-		var node = allHighCells[i];
-		var currentText = node.childNodes[0].nodeValue;
-
-		if (currentText !== "0" && currentText !== "-")
-			node.classList.add("table-danger");
-	}
 
 	var allMediumCells = document.getElementsByClassName("medium")
 	for(var i = 0, max = allMediumCells.length; i < max; i++) {
 		var node = allMediumCells[i];
 		var currentText = node.childNodes[0].nodeValue;
 
-		if (currentText !== "0" && currentText !== "-")
+		if (currentText !== "0" && currentText !== "-") {
 			node.classList.add("table-warning");
+			var module = node.parentElement.querySelector('#name');
+			if (module !== null) {
+				module.classList.add("table-warning");
+			}
+		}
 	}
 
 	var allLowCells = document.getElementsByClassName("low")
@@ -61,8 +58,27 @@ const (
 		var node = allLowCells[i];
 		var currentText = node.childNodes[0].nodeValue;
 
-		if (currentText !== "0" && currentText !== "-")
+		if (currentText !== "0" && currentText !== "-") {
 			node.classList.add("table-warning");
+			var module = node.parentElement.querySelector('#name');
+			if (module !== null) {
+				module.classList.add("table-warning");
+			}
+		}
+	}
+
+	var allHighCells = document.getElementsByClassName("high")
+	for(var i = 0, max = allHighCells.length; i < max; i++) {
+		var node = allHighCells[i];
+		var currentText = node.childNodes[0].nodeValue;
+
+		if (currentText !== "0" && currentText !== "-") {
+			node.classList.add("table-danger");
+			var module = node.parentElement.querySelector('#name');
+			if (module !== null) {
+				module.classList.add("table-danger");
+			}
+		}
 	}
 	</script>
 	</body>
@@ -89,12 +105,12 @@ const (
 					</tr>
 				</thead>
 					<tr>
-					  <td class="high">%d</td>
-					  <td class="medium">%d</td>
-					  <td class="low">%d</td>
-					  <td class="high">%d</td>
-					  <td class="medium">%d</td>
-					  <td class="low">%d</td>
+					  <td class="high data">%d</td>
+					  <td class="medium data">%d</td>
+					  <td class="low data">%d</td>
+					  <td class="high data">%d</td>
+					  <td class="medium data">%d</td>
+					  <td class="low data">%d</td>
 					</tr>
 	`
 
@@ -131,9 +147,9 @@ const (
 		%s
 		</a>
 		</td>
-		<td class="data">%s</td>
-		<td class="data">%s</td>
-		<td class="data">%s</td>
+		<td class="">%s</td>
+		<td class="">%s</td>
+		<td><div class="overflow-auto">%s</div></td>
 	</tr>
 	`
 
@@ -150,13 +166,13 @@ const (
 		<th></th>
 	</tr>
 	<tr>
-		<th>H</th>
-		<th>M</th>
-		<th>L</th>
+		<th class="data">H</th>
+		<th class="data">M</th>
+		<th class="data">L</th>
 		<th></th>
-		<th>H</th>
-		<th>M</th>
-		<th>L</th>
+		<th class="data">H</th>
+		<th class="data">M</th>
+		<th class="data">L</th>
 		<th>Info</th>
 	</tr>
 	</thead>
@@ -164,7 +180,7 @@ const (
 		<td class="data high">-</td>
 		<td class="data medium">-</td>
 		<td class="data low">-</td>
-		<td class="data" id="name">
+		<td class="name" id="name">
 		<span class="tbltree-indent"></span>
 		<span class="tbltree-expander"></span>
 		%s
@@ -172,7 +188,7 @@ const (
 		<td class="data">-</td>
 		<td class="data">-</td>
 		<td class="data">-</td>
-		<td class="data">-</td>
+		<td class="">-</td>
 	</tr>
 	`
 
@@ -180,7 +196,7 @@ const (
 		<td class="data high">%d</td>
 		<td class="data medium">%d</td>
 		<td class="data low">%d</td>
-		<td class="data" id="name">
+		<td class="name" id="name">
 		<span class="tbltree-indent"></span>
 		<span class="tbltree-expander"></span>
 		<a href="https://www.npmjs.com/package/%s" target="_blank">
@@ -190,7 +206,7 @@ const (
 		<td class="data">%d</td>
 		<td class="data">%d</td>
 		<td class="data">%d</td>
-		<td class="data">%s</td>
+		<td class="">%s</td>
 	`
 
 	licenseTableOpen = `
@@ -208,13 +224,13 @@ const (
 		<th></th>
 	</tr>
 	<tr>
-		<th>UL</th>
-		<th>RK</th>
-		<th>LC</th>
-		<th></th>
-		<th>UL</th>
-		<th>RK</th>
-		<th>LC</th>
+		<th class="data">UL</th>
+		<th class="data">RK</th>
+		<th class="data">LC</th>
+		<th class="name"></th>
+		<th class="data">UL</th>
+		<th class="data">RK</th>
+		<th class="data">LC</th>
 		<th>Declared</th>
 		<th>Detected (Confidence)</th>
 		<th>Comment</th>
@@ -224,7 +240,7 @@ const (
 		<td class="data high">-</td>
 		<td class="data medium">-</td>
 		<td class="data low">-</td>
-		<td class="data" id="name">
+		<td class="name" id="name">
 		<span class="tbltree-indent"></span>
 		<span class="tbltree-expander"></span>
 		%s
@@ -232,9 +248,9 @@ const (
 		<td class="data">-</td>
 		<td class="data">-</td>
 		<td class="data">-</td>
-		<td class="data">-</td>
-		<td class="data">-</td>
-		<td class="data">-</td>
+		<td><div class="overflow-auto">-</div></td>
+		<td><div class="overflow-auto">-</div></td>
+		<td class="">-</td>
 	</tr>
 	`
 
@@ -242,7 +258,7 @@ const (
 	<td class="data high">%d</td>
 	<td class="data medium">%d</td>
 	<td class="data low">%d</td>
-	<td class="data" id="name">
+	<td class="name" id="name">
 	<span class="tbltree-indent"></span>
 	<span class="tbltree-expander"></span>
 	<a href="https://www.npmjs.com/package/%s" target="_blank">
@@ -252,9 +268,9 @@ const (
 	<td class="data">%d</td>
 	<td class="data">%d</td>
 	<td class="data">%d</td>
-	<td class="data">%s</td>
-	<td class="data">%s</td>
-	<td class="data">%s</td>
+	<td><div class="overflow-auto">%s</div></td>
+	<td><div class="overflow-auto">%s</div></td>
+	<td class="">%s</td>
 	`
 
 	tableClose = `

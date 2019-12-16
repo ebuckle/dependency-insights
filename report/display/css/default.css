@@ -1,6 +1,33 @@
+table
+{
+  height: fit-content;
+}
+
+.data
+{
+  width: 25px;
+  text-align: center;
+  table-layout: initial;
+}
+
 td
 {
-  width: max-content;
+  height: 5px;
   table-layout: fixed;
-  resize: none;
+}
+
+tr
+{
+  height: 5px;
+}
+
+.name, #name
+{
+  width: 700px;
+  table-layout: initial;
+}
+
+.overflow-auto
+{
+  height: 80px;
 }
