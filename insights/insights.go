@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"strings"
 
 	"gopkg.in/src-d/go-license-detector.v3/licensedb"
 	"gopkg.in/src-d/go-license-detector.v3/licensedb/api"
@@ -28,6 +29,7 @@ type DependencyData struct {
 	ChildVulnerabilities *Vulnerabilities           `json:"childVulnerabilities"`
 	LicenseData          *LicenseData               `json:"licenseData"`
 	ChildLicenseData     *LicenseData               `json:"childLicenseData"`
+	RiskyKeywords        []*RiskyKeywordHit         `json:"riskKeywords"`
 }
 
 // NpmReport contains information about the parent project, dependencies, npm audit and project issues
@@ -64,6 +66,13 @@ type LicenseData struct {
 	Comment              string `json:"comment"`
 }
 
+// RiskyKeywordHit represents a successful finding of a risky keyword
+type RiskyKeywordHit struct {
+	File       string `json:"file"`
+	LineNumber string `json:"lineNumber"`
+	LineText   string `json:"lineText"`
+}
+
 // ProduceInsights calls the appropriate crawling function for the provided language and then reports on licensing
 func ProduceInsights(language string, projectPath string) (*NpmReport, error) {
 	_, err := os.Stat(projectPath)
@@ -96,6 +105,7 @@ func ProduceInsights(language string, projectPath string) (*NpmReport, error) {
 		return nil, err
 	}
 
+	searchForRiskyKeywords(&insightData.Dependencies, "gpl")
 	insightData.ChildLicenseData = calculateLicenseTotals(&insightData.Dependencies)
 	performLicenseCheck(&insightData.Dependencies)
 
@@ -401,4 +411,42 @@ func sumLicensing(parentTally *LicenseData, childTally *LicenseData) {
 	parentTally.Unknown += childTally.Unknown
 	parentTally.RiskyKeywords += childTally.RiskyKeywords
 	parentTally.LicenseCompatability += childTally.LicenseCompatability
+}
+
+func searchForRiskyKeywords(dependencies *map[string]*DependencyData, keyword string) {
+	for _, dep := range *dependencies {
+		if dep.Path == "" {
+			continue
+		}
+
+		grepCommand := exec.Command("grep", keyword, "-HIinwr", "--exclude=package.json", "--exclude=package-lock.json",
+			"--exclude-dir=node_modules", ".")
+		grepCommand.Dir = dep.Path
+		rawOutput, _ := grepCommand.Output()
+		stringOutput := string(rawOutput)
+		if stringOutput != "" {
+			outputLines := strings.Split(stringOutput, "\n")
+
+			for _, line := range outputLines {
+				if line == "" {
+					continue
+				}
+				splitData := strings.SplitN(line, ":", 3)
+				newKeywordHit := &RiskyKeywordHit{
+					File:       splitData[0],
+					LineNumber: splitData[1],
+					LineText:   splitData[2],
+				}
+				if dep.RiskyKeywords == nil {
+					dep.RiskyKeywords = make([]*RiskyKeywordHit, 0)
+				}
+				dep.RiskyKeywords = append(dep.RiskyKeywords, newKeywordHit)
+				dep.LicenseData.RiskyKeywords++
+			}
+		}
+
+		if dep.Dependencies != nil {
+			searchForRiskyKeywords(&dep.Dependencies, keyword)
+		}
+	}
 }

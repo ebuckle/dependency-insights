@@ -5,6 +5,10 @@ const (
 	<div id="content" class="">
 	`
 
+	noneFound = `
+	<div>None Found.</div>
+	`
+
 	htmlHeader = `<html>
 	<head>
 		<meta charset="utf-8">
@@ -90,7 +94,7 @@ const (
 
 	summaryTable = `
 	<div class="card">
-			<div class="card-body card">
+			<div class="card-body">
 				<h2 class="card-title">Summary</h2>
 				<hr>
 				<table id="table" class="jquery-tbltree table table-bordered table-sm table-striped table-hover">
@@ -121,7 +125,7 @@ const (
 	tableOpen = `
 	<div class="card">
 			<div class="card-body">
-				<h2 class="card-title">Security Risks</h2>
+				<h2 class="card-title">Dependency Tree</h2>
 				<hr>
 	<table id="table" class="jquery-tbltree table table-bordered table-sm table-striped table-hover">
 	<thead class="thead">
@@ -240,6 +244,7 @@ const (
 		<th class="data">LC</th>
 		<th>Declared</th>
 		<th>Detected (Confidence)</th>
+		<th>Keyword Hits</th>
 		<th>Comment</th>
 	</tr>
 	</thead>
@@ -255,6 +260,7 @@ const (
 		<td class="data">-</td>
 		<td class="data">-</td>
 		<td class="data">-</td>
+		<td><div class="overflow-auto">-</div></td>
 		<td><div class="overflow-auto">-</div></td>
 		<td><div class="overflow-auto">-</div></td>
 		<td class="">-</td>
@@ -277,6 +283,7 @@ const (
 	<td class="data">%d</td>
 	<td><div class="overflow-auto">%s</div></td>
 	<td><div class="overflow-auto">%s</div></td>
+	<td><div class="overflow-auto">%s</div></td>
 	<td class="">%s</td>
 	`
 
@@ -289,4 +296,14 @@ const (
 	pageClose = `
 	</div>
 	`
+
+	cardOpen = `
+	<div class="card">
+			<div class="card-body">
+				<h2 class="card-title">%s</h2>
+				<hr>
+	`
+	cardClose = `
+	</div>
+	</div>`
 )

@@ -52,13 +52,25 @@ func printReport(w io.Writer, insightData *insights.NpmReport, vulnerabilityRepo
 		insightData.ChildLicenseData.Unknown, insightData.ChildLicenseData.RiskyKeywords, insightData.ChildLicenseData.LicenseCompatability)
 	fmt.Fprintf(w, tableClose)
 
-	fmt.Fprintf(w, vulnTableOpen, insightData.Name)
-	printVulnerabilities(w, &vulnerabilityReport.Dependencies, 0)
-	fmt.Fprintf(w, tableClose)
+	if vulnerabilityReport.Dependencies != nil {
+		fmt.Fprintf(w, vulnTableOpen, insightData.Name)
+		printVulnerabilities(w, &vulnerabilityReport.Dependencies, 0)
+		fmt.Fprintf(w, tableClose)
+	} else {
+		fmt.Fprintf(w, cardOpen, "Security Risks")
+		fmt.Fprintf(w, noneFound)
+		fmt.Fprintf(w, cardClose)
+	}
 
-	fmt.Fprintf(w, licenseTableOpen, insightData.Name)
-	printLicenseData(w, &licenseReport.Dependencies, 0)
-	fmt.Fprintf(w, tableClose)
+	if licenseReport.Dependencies != nil {
+		fmt.Fprintf(w, licenseTableOpen, insightData.Name)
+		printLicenseData(w, &licenseReport.Dependencies, 0)
+		fmt.Fprintf(w, tableClose)
+	} else {
+		fmt.Fprintf(w, cardOpen, "License Risks")
+		fmt.Fprintf(w, noneFound)
+		fmt.Fprintf(w, cardClose)
+	}
 
 	fmt.Fprintf(w, tableOpen, insightData.Name, insightData.Version)
 	printPackages(w, &insightData.Dependencies, 0)
@@ -107,7 +119,7 @@ func printLicenseData(w io.Writer, licenseReport *map[string]*insights.Dependenc
 		i++
 		fmt.Fprintf(w, licenseTableRow, i, parentID, packageData.LicenseData.Unknown, packageData.LicenseData.RiskyKeywords, packageData.LicenseData.LicenseCompatability, packageName,
 			packageName, packageData.Version, packageData.ChildLicenseData.Unknown, packageData.ChildLicenseData.RiskyKeywords, packageData.ChildLicenseData.LicenseCompatability,
-			packageData.DeclaredLicenses, produceLicenseString(packageData.LicenseAnalysis), packageData.LicenseData.Comment)
+			packageData.DeclaredLicenses, produceLicenseString(packageData.LicenseAnalysis), produceKeywordsString(packageData.RiskyKeywords), packageData.LicenseData.Comment)
 		if packageData.Dependencies != nil {
 			i = printLicenseData(w, &packageData.Dependencies, i)
 		}
@@ -119,7 +131,8 @@ func produceInfoString(auditData map[string]interface{}) string {
 	returnString := ""
 	for _, vulnDataI := range auditData {
 		vulnData := vulnDataI.(map[string]interface{})
-		returnString += vulnData["url"].(string) + "\n"
+		returnString += `<a href="` + vulnData["url"].(string) + `">` + vulnData["url"].(string) + `</a>`
+		//returnString += vulnData["url"].(string) + "\n"
 	}
 	return returnString
 }
@@ -145,6 +158,20 @@ func produceLicenseString(licenseAnalysis map[string]api.Match) string {
 			}
 			returnString += "</ul>"
 		}
+	}
+	returnString += "</ul>"
+	return returnString
+}
+
+func produceKeywordsString(keywordsArray []*insights.RiskyKeywordHit) string {
+	returnString := "<ul>"
+
+	for _, data := range keywordsArray {
+		returnString += "<li>" + data.File + "</li>"
+		returnString += "<ul>"
+		returnString += "<li>Line " + data.LineNumber + "</li>"
+		returnString += "<li>" + data.LineText + "</li>"
+		returnString += "</ul>"
 	}
 	returnString += "</ul>"
 	return returnString
