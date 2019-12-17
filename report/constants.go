@@ -18,7 +18,7 @@ const (
 		<link type="text/css" href="./report/display/css/default.css" rel="stylesheet">
     </head>
     <body>
-		<div id="doctitle">Dependency Insights</div>
+		<div class="panel-heading" id="doctitle"><h3>Codewind Project: %s - Dependency Insights</h3></div>
 	`
 	htmlFooter = `
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -119,6 +119,7 @@ const (
 					  <td class="high data">%d</td>
 					  <td class="medium data">%d</td>
 					  <td class="low data">%d</td>
+					  <td>H, M, L = High, Medium, Low Risk <br> UL = Unclear/Unlicensed | RK = Risky Keywords (GPL, UNLICENSE etc) | LC = License Compatability</td>
 					</tr>
 	`
 

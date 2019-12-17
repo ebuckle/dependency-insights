@@ -45,7 +45,7 @@ func buildReportData(report *insights.NpmReport, vulnerabilityReport *insights.N
 }
 
 func printReport(w io.Writer, insightData *insights.NpmReport, vulnerabilityReport *insights.NpmReport, licenseReport *insights.NpmReport) {
-	fmt.Fprintf(w, htmlHeader)
+	fmt.Fprintf(w, htmlHeader, insightData.Name)
 	fmt.Fprintf(w, pageOpen)
 
 	fmt.Fprintf(w, summaryTable, insightData.ChildVulnerabilities.High, insightData.ChildVulnerabilities.Medium, insightData.ChildVulnerabilities.Low,
