@@ -218,6 +218,7 @@ const (
 		<td class="data">%d</td>
 		<td class="data">%d</td>
 		<td class="">%s</td>
+		</tr>
 	`
 
 	licenseTableOpen = `
@@ -286,6 +287,7 @@ const (
 	<td><div class="overflow-auto">%s</div></td>
 	<td><div class="overflow-auto">%s</div></td>
 	<td class="">%s</td>
+	</tr>
 	`
 
 	tableClose = `
