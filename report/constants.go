@@ -18,7 +18,7 @@ const (
 		<link type="text/css" href="./report/display/css/default.css" rel="stylesheet">
     </head>
     <body>
-		<div class="panel-heading" id="doctitle"><h3>Codewind Project: %s - Dependency Insights</h3></div>
+		<div class="panel-heading" id="doctitle"><img src="./report/display/css/images/codewind.svg" class="img-fluid float-left" style="height:40px;" alt="..."><h3>%s - Dependency Insights</h3></div>
 	`
 	htmlFooter = `
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
