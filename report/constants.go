@@ -25,7 +25,7 @@ const (
 	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
 	<script type="text/javascript" src="./report/display/js/jquery.tbltree.js"></script>
 	<script type="text/javascript">
-		$('#table').tbltree({
+		$('#tableAll').tbltree({
 			initState: 'expanded',
 		});
 	</script>
@@ -128,7 +128,7 @@ const (
 			<div class="card-body">
 				<h2 class="card-title">Dependency Tree</h2>
 				<hr>
-	<table id="table" class="jquery-tbltree table table-bordered table-sm table-striped table-hover">
+	<table id="tableAll" class="jquery-tbltree table table-bordered table-sm table-striped table-hover">
 	<thead class="thead">
 	<tr>
 	  <th>Package Name</th>

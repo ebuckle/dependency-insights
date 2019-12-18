@@ -3,8 +3,8 @@ package actions
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -32,8 +32,7 @@ func StartInsights(c *cli.Context) {
 	response, err := insights.ProduceInsights(projectLanguage, projectPath)
 
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	report.ProduceReport(response)
@@ -53,8 +52,7 @@ func setupDockerProject(c *cli.Context, tempFolder string) string {
 	err := dockerCommand.Run()
 
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	tarCommand := exec.Command("tar", "-xvf", "output.tar")
@@ -62,8 +60,7 @@ func setupDockerProject(c *cli.Context, tempFolder string) string {
 	tarCommand.Run()
 
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	projectPath := tempFolder + "/app"
@@ -81,8 +78,7 @@ func setupGitProject(c *cli.Context, tempFolder string) string {
 	})
 
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	projectPath := tempFolder
@@ -90,8 +86,7 @@ func setupGitProject(c *cli.Context, tempFolder string) string {
 	err = installDependencies(projectPath, projectLanguage)
 
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	return projectPath
@@ -113,7 +108,19 @@ func installDependencies(projectPath string, projectLanguage string) error {
 	case "nodejs":
 		npmCommand := exec.Command("npm", "install", "--production")
 		npmCommand.Dir = projectPath
-		err = npmCommand.Run()
+		err := npmCommand.Run()
+		if err != nil {
+			return err
+		}
+
+		if _, err := os.Stat(projectPath + "/package-lock.json"); os.IsNotExist(err) {
+			packageLockCommand := exec.Command("npm", "install", "--package-lock-only")
+			packageLockCommand.Dir = projectPath
+			err := packageLockCommand.Run()
+			if err != nil {
+				return err
+			}
+		}
 	/*
 		case "go":
 			goCommand := exec.Command("dep", "ensure", "-v")

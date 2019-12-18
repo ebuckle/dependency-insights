@@ -52,7 +52,7 @@ func printReport(w io.Writer, insightData *insights.NpmReport, vulnerabilityRepo
 		insightData.ChildLicenseData.Unknown, insightData.ChildLicenseData.RiskyKeywords, insightData.ChildLicenseData.LicenseCompatability)
 	fmt.Fprintf(w, tableClose)
 
-	if vulnerabilityReport.Dependencies != nil {
+	if len(vulnerabilityReport.Dependencies) != 0 {
 		fmt.Fprintf(w, vulnTableOpen, insightData.Name)
 		printVulnerabilities(w, &vulnerabilityReport.Dependencies, 0)
 		fmt.Fprintf(w, tableClose)
@@ -62,7 +62,7 @@ func printReport(w io.Writer, insightData *insights.NpmReport, vulnerabilityRepo
 		fmt.Fprintf(w, cardClose)
 	}
 
-	if licenseReport.Dependencies != nil {
+	if len(licenseReport.Dependencies) != 0 {
 		fmt.Fprintf(w, licenseTableOpen, insightData.Name)
 		printLicenseData(w, &licenseReport.Dependencies, 0)
 		fmt.Fprintf(w, tableClose)
