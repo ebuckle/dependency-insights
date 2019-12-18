@@ -67,7 +67,7 @@ func printReport(w io.Writer, insightData *insights.NpmReport, vulnerabilityRepo
 		printLicenseData(w, &licenseReport.Dependencies, 0)
 		fmt.Fprintf(w, tableClose)
 	} else {
-		fmt.Fprintf(w, cardOpen, "License Risks")
+		fmt.Fprintf(w, cardOpen, "Legal Risks")
 		fmt.Fprintf(w, noneFound)
 		fmt.Fprintf(w, cardClose)
 	}

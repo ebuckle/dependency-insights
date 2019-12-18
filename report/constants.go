@@ -224,7 +224,7 @@ const (
 	licenseTableOpen = `
 	<div class="card">
 			<div class="card-body">
-				<h2 class="card-title">License Risks</h2>
+				<h2 class="card-title">Legal Risks</h2>
 				<hr>
 	<table id="tableLicense" class="jquery-tbltree table table-bordered table-sm table-striped table-hover">
 	<thead class="thead">
